@@ -1,0 +1,5 @@
+@extends('layouts.fixit')
+@section('title', 'ตั้งรหัสผ่านใหม่')
+@section('content')
+<div class="auth-shell"><div class="panel auth-card"><h1 class="h4 fw-bold mb-4">ตั้งรหัสผ่านใหม่</h1><form method="POST" action="{{ route('password.store') }}">@csrf<input type="hidden" name="token" value="{{ $request->route('token') }}"><label class="form-label" for="email">อีเมล</label><input class="form-control mb-3" type="email" id="email" name="email" value="{{ old('email', $request->email) }}" required autocomplete="username"><label class="form-label" for="password">รหัสผ่านใหม่</label><input class="form-control mb-3" type="password" id="password" name="password" required minlength="8" autocomplete="new-password"><label class="form-label" for="password_confirmation">ยืนยันรหัสผ่าน</label><input class="form-control mb-4" type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password"><button class="btn btn-primary w-100">บันทึกรหัสผ่านใหม่</button></form></div></div>
+@endsection
