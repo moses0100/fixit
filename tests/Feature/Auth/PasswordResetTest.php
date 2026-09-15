@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Mail\PasswordResetOtpMail;
+use App\Models\PasswordResetOtp;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
@@ -19,55 +21,87 @@ class PasswordResetTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_reset_password_link_can_be_requested(): void
+    public function test_otp_can_be_requested_by_email(): void
     {
-        Notification::fake();
+        Mail::fake();
 
         $user = User::factory()->create();
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $response = $this->post('/forgot-password', ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class);
+        $response->assertRedirect(route('password.otp'));
+        Mail::assertSent(PasswordResetOtpMail::class, function (PasswordResetOtpMail $mail) use ($user) {
+            return $mail->user->is($user) && strlen($mail->otp) === 6;
+        });
+        $this->assertDatabaseHas('password_reset_otps', ['user_id' => $user->id]);
     }
 
-    public function test_reset_password_screen_can_be_rendered(): void
+    public function test_otp_screen_can_be_rendered(): void
     {
-        Notification::fake();
+        Mail::fake();
 
         $user = User::factory()->create();
 
         $this->post('/forgot-password', ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
+        $this->get('/verify-otp')
+            ->assertStatus(200)
+            ->assertSee('ยืนยันรหัส OTP');
+    }
 
-            $response->assertStatus(200);
+    public function test_invalid_otp_is_rejected_and_attempt_is_recorded(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        $this->post('/verify-otp', [
+            'email' => $user->email,
+            'otp' => '000000',
+        ])->assertSessionHasErrors('otp');
+
+        $this->assertDatabaseHas('password_reset_otps', [
+            'user_id' => $user->id,
+            'attempts' => 1,
+        ]);
+    }
+
+    public function test_password_can_be_reset_after_valid_otp(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        $otp = null;
+        Mail::assertSent(PasswordResetOtpMail::class, function (PasswordResetOtpMail $mail) use (&$otp) {
+            $otp = $mail->otp;
 
             return true;
         });
-    }
 
-    public function test_password_can_be_reset_with_valid_token(): void
-    {
-        Notification::fake();
+        $otpResponse = $this->post('/verify-otp', [
+            'email' => $user->email,
+            'otp' => $otp,
+        ]);
 
-        $user = User::factory()->create();
+        $resetUrl = $otpResponse->headers->get('Location');
+        parse_str((string) parse_url($resetUrl, PHP_URL_QUERY), $query);
+        $token = basename((string) parse_url($resetUrl, PHP_URL_PATH));
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $this->get($resetUrl)->assertStatus(200);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $response = $this->post('/reset-password', [
-                'token' => $notification->token,
-                'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
-            ]);
+        $this->post('/reset-password', [
+            'token' => $token,
+            'email' => $query['email'],
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
+        ])->assertSessionHasNoErrors()->assertRedirect(route('login'));
 
-            $response
-                ->assertSessionHasNoErrors()
-                ->assertRedirect(route('login'));
-
-            return true;
-        });
+        $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+        $this->assertNotNull(PasswordResetOtp::where('user_id', $user->id)->latest()->value('used_at'));
     }
 }
