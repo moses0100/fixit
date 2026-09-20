@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RepairRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::get('/repairs/{repair}/image', [RepairRequestController::class, 'image'])->name('repairs.image');
     Route::patch('/repairs/{repair}/cancel', [RepairRequestController::class, 'cancel'])->name('repairs.cancel');
     Route::resource('repairs', RepairRequestController::class)->except('destroy');

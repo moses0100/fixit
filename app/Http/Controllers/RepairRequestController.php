@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\RepairRequest;
+use App\Models\Device;
+use App\Models\User;
+use App\Notifications\NewRepairRequestReceived;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -51,6 +54,7 @@ class RepairRequestController extends Controller
             $repair = DB::transaction(function () use ($request, $data, $path) {
                 $repair = new RepairRequest($data);
                 $repair->user_id = $request->user()->id;
+                $repair->device_id = Device::forRepair($request->user(), $data)->id;
                 // เลขชั่วคราวไม่ซ้ำกัน ก่อนเปลี่ยนเป็นเลขอ้างอิงตาม ID
                 $repair->ticket_no = (string) Str::uuid();
                 $repair->status = 'pending';
@@ -58,6 +62,11 @@ class RepairRequestController extends Controller
                 $repair->save();
                 $repair->ticket_no = 'REP-'.now()->year.'-'.str_pad((string) $repair->id, 5, '0', STR_PAD_LEFT);
                 $repair->save();
+                $repair->histories()->create([
+                    'user_id' => $request->user()->id,
+                    'status_to' => 'pending',
+                    'note' => 'สร้างรายการแจ้งซ่อม',
+                ]);
 
                 return $repair;
             });
@@ -67,6 +76,8 @@ class RepairRequestController extends Controller
             }
             throw $error;
         }
+
+        User::where('role', 'admin')->get()->each(fn (User $admin) => $admin->notify(new NewRepairRequestReceived($repair)));
 
         return redirect()->route('repairs.show', $repair)->with('success', 'ส่งแจ้งซ่อมเรียบร้อย เลขที่ '.$repair->ticket_no);
     }
@@ -79,8 +90,10 @@ class RepairRequestController extends Controller
     public function show(Request $request, RepairRequest $repair)
     {
         $this->authorizeOwner($request, $repair);
+        $repair->load(['user', 'device', 'histories.user']);
+        $deviceHistory = $repair->device?->repairRequests()->whereKeyNot($repair->id)->limit(5)->get() ?? collect();
 
-        return view('repairs.show', ['repair' => $repair->load('user'), 'admin' => false]);
+        return view('repairs.show', compact('repair', 'deviceHistory') + ['admin' => false]);
     }
 
     public function edit(Request $request, RepairRequest $repair)
@@ -101,12 +114,19 @@ class RepairRequestController extends Controller
             DB::transaction(function () use ($repair, $request, $data, $path, &$oldPath) {
                 $locked = RepairRequest::whereKey($repair->id)->lockForUpdate()->firstOrFail();
                 abort_unless($locked->status === 'pending', 403, 'แก้ไขได้เฉพาะรายการที่รอตรวจสอบ');
+                $locked->device_id = Device::forRepair($request->user(), $data)->id;
                 $locked->fill($data);
                 if ($path || $request->boolean('remove_image')) {
                     $oldPath = $locked->image;
                     $locked->image = $path;
                 }
                 $locked->save();
+                $locked->histories()->create([
+                    'user_id' => $request->user()->id,
+                    'status_from' => $locked->status,
+                    'status_to' => $locked->status,
+                    'note' => 'ผู้แจ้งแก้ไขรายละเอียดงาน',
+                ]);
             });
         } catch (\Throwable $error) {
             if ($path) {
@@ -124,11 +144,17 @@ class RepairRequestController extends Controller
     public function cancel(Request $request, RepairRequest $repair)
     {
         $this->authorizeOwner($request, $repair);
-        DB::transaction(function () use ($repair) {
+        DB::transaction(function () use ($request, $repair) {
             $locked = RepairRequest::whereKey($repair->id)->lockForUpdate()->firstOrFail();
             abort_unless($locked->status === 'pending', 403, 'ยกเลิกได้เฉพาะรายการที่รอตรวจสอบ');
             $locked->status = 'cancelled';
             $locked->save();
+            $locked->histories()->create([
+                'user_id' => $request->user()->id,
+                'status_from' => 'pending',
+                'status_to' => 'cancelled',
+                'note' => 'ผู้แจ้งยกเลิกรายการ',
+            ]);
         });
 
         return redirect()->route('repairs.show', $repair)->with('success', 'ยกเลิกรายการแล้ว โดยยังเก็บข้อมูลไว้');

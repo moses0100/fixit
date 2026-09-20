@@ -4,11 +4,15 @@ namespace Tests\Feature;
 
 use App\Models\RepairRequest;
 use App\Models\User;
+use App\Models\Device;
+use App\Notifications\RepairStatusChanged;
 use Database\Seeders\AdminSeeder;
 use Database\Seeders\DemoRepairSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class RepairWorkflowTest extends TestCase
@@ -56,6 +60,63 @@ class RepairWorkflowTest extends TestCase
         Storage::disk('local')->assertExists($repair->image);
         $this->get(route('repairs.image', $repair))->assertOk();
         $this->get(route('repairs.show', $repair))->assertOk()->assertSee($repair->ticket_no);
+    }
+
+    public function test_new_repair_creates_device_history_and_notifies_admin(): void
+    {
+        $admin = $this->admin();
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/repairs', $this->data(['serial_number' => 'SN-001']))->assertRedirect();
+
+        $repair = RepairRequest::firstOrFail();
+        $this->assertNotNull($repair->device_id);
+        $this->assertDatabaseHas('devices', ['id' => $repair->device_id, 'serial_number' => 'SN-001']);
+        $this->assertDatabaseHas('repair_histories', ['repair_request_id' => $repair->id, 'status_from' => null, 'status_to' => 'pending']);
+        $this->assertCount(1, $admin->fresh()->unreadNotifications);
+    }
+
+    public function test_status_update_creates_timeline_and_notifies_owner(): void
+    {
+        Notification::fake();
+        $repair = RepairRequest::factory()->create();
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->put(route('admin.repairs.status', $repair), ['status' => 'repairing', 'admin_note' => 'เริ่มตรวจสอบแล้ว'])->assertRedirect();
+
+        $this->assertDatabaseHas('repair_histories', [
+            'repair_request_id' => $repair->id,
+            'user_id' => $admin->id,
+            'status_from' => 'pending',
+            'status_to' => 'repairing',
+            'note' => 'เริ่มตรวจสอบแล้ว',
+        ]);
+        Notification::assertSentTo($repair->user, RepairStatusChanged::class);
+    }
+
+    public function test_same_device_history_is_visible_on_repair_detail(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->post('/repairs', $this->data(['serial_number' => 'SN-SAME']))->assertRedirect();
+        $first = RepairRequest::firstOrFail();
+        $this->actingAs($user)->post('/repairs', $this->data(['serial_number' => 'SN-SAME', 'title' => 'ปัญหาเดิมอีกครั้ง']))->assertRedirect();
+        $second = RepairRequest::latest('id')->firstOrFail();
+
+        $this->get(route('repairs.show', $second))->assertOk()->assertSee($first->ticket_no)->assertSee('ประวัติอุปกรณ์นี้');
+        $this->assertSame($first->device_id, $second->device_id);
+        $this->assertSame(1, Device::where('user_id', $user->id)->count());
+    }
+
+    public function test_user_can_read_a_database_notification(): void
+    {
+        $user = User::factory()->create();
+        $repair = RepairRequest::factory()->create(['user_id' => $user->id]);
+        $user->notify(new RepairStatusChanged($repair, 'pending', 'repairing', 'กำลังดำเนินการ'));
+        $notification = $user->fresh()->unreadNotifications->first();
+
+        $this->actingAs($user)->get(route('notifications.index'))->assertOk()->assertSee('กำลังดำเนินการ');
+        $this->post(route('notifications.read', $notification->id))->assertRedirect(route('repairs.show', $repair));
+        $this->assertNotNull(DB::table('notifications')->where('id', $notification->id)->value('read_at'));
     }
 
     public function test_required_fields_and_invalid_images_are_rejected(): void

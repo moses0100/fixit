@@ -17,6 +17,7 @@
         <a class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><span class="nav-symbol">▦</span> ภาพรวมของฉัน</a>
         <a class="nav-item {{ request()->routeIs('repairs.index','repairs.show','repairs.edit') ? 'active' : '' }}" href="{{ route('repairs.index') }}"><span class="nav-symbol">▤</span> รายการแจ้งซ่อม</a>
         <a class="nav-item {{ request()->routeIs('repairs.create') ? 'active' : '' }}" href="{{ route('repairs.create') }}"><span class="nav-symbol">＋</span> แจ้งซ่อมใหม่</a>
+        <a class="nav-item {{ request()->routeIs('notifications.*') ? 'active' : '' }}" href="{{ route('notifications.index') }}"><span class="nav-symbol">♢</span> การแจ้งเตือน @if(auth()->user()->unreadNotifications()->count())<span class="badge rounded-pill text-bg-danger ms-auto">{{ auth()->user()->unreadNotifications()->count() }}</span>@endif</a>
         @if(auth()->user()->role === 'admin')
             <div class="sidebar-caption">ADMINISTRATION</div>
             <a class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><span class="nav-symbol">◈</span> ภาพรวมผู้ดูแล</a>

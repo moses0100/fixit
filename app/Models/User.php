@@ -21,6 +21,11 @@ class User extends Authenticatable
         return $this->hasMany(RepairRequest::class);
     }
 
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
+    }
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 

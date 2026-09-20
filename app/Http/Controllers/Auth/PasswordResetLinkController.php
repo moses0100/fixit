@@ -55,8 +55,9 @@ class PasswordResetLinkController extends Controller
         } catch (Throwable $error) {
             $resetOtp->delete();
             report($error);
+            $request->session()->put('password_reset.email', $email);
 
-            return back()->withInput()->withErrors(['email' => 'ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง']);
+            return redirect()->route('password.otp')->with('status', 'หากอีเมลนี้มีบัญชีในระบบ เราจะส่งรหัส OTP ไปให้');
         }
 
         $request->session()->put('password_reset.email', $user->email);
