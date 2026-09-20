@@ -16,7 +16,16 @@ class RepairRequestController extends Controller
 {
     public function index(Request $request)
     {
-        return view('repairs.index', ['repairs' => $request->user()->repairRequests()->filter($request)->paginate(10)->withQueryString(), 'admin' => false]);
+        $repairs = $request->user()->repairRequests()->filter($request)->paginate(10)->withQueryString();
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('repairs.table', ['repairs' => $repairs, 'admin' => false])->render()
+                    .($repairs->hasPages() ? '<div class="p-4">'.(string) $repairs->links() .'</div>' : ''),
+                'total' => $repairs->total(),
+            ]);
+        }
+
+        return view('repairs.index', ['repairs' => $repairs, 'admin' => false]);
     }
 
     public function create()

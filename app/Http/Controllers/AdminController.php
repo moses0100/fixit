@@ -22,7 +22,16 @@ class AdminController extends Controller
 
     public function index(Request $request)
     {
-        return view('repairs.index', ['repairs' => RepairRequest::with('user')->filter($request)->paginate(10)->withQueryString(), 'admin' => true]);
+        $repairs = RepairRequest::with('user')->filter($request)->paginate(10)->withQueryString();
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('repairs.table', ['repairs' => $repairs, 'admin' => true])->render()
+                    .($repairs->hasPages() ? '<div class="p-4">'.(string) $repairs->links() .'</div>' : ''),
+                'total' => $repairs->total(),
+            ]);
+        }
+
+        return view('repairs.index', ['repairs' => $repairs, 'admin' => true]);
     }
 
     public function show(RepairRequest $repair)

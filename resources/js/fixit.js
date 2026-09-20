@@ -9,6 +9,36 @@ if (themeBtn) themeBtn.addEventListener('click', () => {
     paintThemeBtn();
 });
 paintThemeBtn();
+const liveForm = document.querySelector('form[data-live-search]');
+if (liveForm) {
+    const result = document.querySelector('[data-live-result]');
+    const total = document.querySelector('[data-live-total]');
+    const hint = document.querySelector('[data-live-hint]');
+    let timer = null;
+    async function runLive() {
+        const url = new URL(liveForm.action);
+        url.search = new URLSearchParams(new FormData(liveForm)).toString();
+        if (hint) hint.textContent = 'กำลังค้นหา...';
+        try {
+            const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            const data = await res.json();
+            if (result) result.innerHTML = data.html;
+            if (total) total.textContent = '/ ' + data.total + ' รายการ';
+            window.history.replaceState(null, '', url);
+        } catch (e) { }
+        if (hint) hint.textContent = '';
+    }
+    liveForm.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(runLive, 350); });
+    liveForm.addEventListener('change', () => { clearTimeout(timer); timer = setTimeout(runLive, 200); });
+    liveForm.addEventListener('submit', e => { e.preventDefault(); clearTimeout(timer); runLive(); });
+    document.addEventListener('click', e => {
+        const link = e.target.closest('[data-live-result] .pagination a');
+        if (!link) return;
+        e.preventDefault();
+        fetch(link.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(r => r.json()).then(data => { if (result) result.innerHTML = data.html; if (total) total.textContent = '/ ' + data.total + ' รายการ'; window.history.replaceState(null, '', link.href); });
+    });
+}
 document.querySelectorAll('form[data-validate]').forEach(form => {
     form.addEventListener('submit', event => {
         if (!form.checkValidity()) {
