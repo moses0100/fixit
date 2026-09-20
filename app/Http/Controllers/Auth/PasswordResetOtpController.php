@@ -40,8 +40,8 @@ class PasswordResetOtpController extends Controller
         $user = User::where('email', $sessionEmail)->where('is_active', true)->first();
 
         if (! $user) {
-            return redirect()->route('password.request')->withErrors([
-                'email' => 'คำขอรีเซ็ตรหัสผ่านไม่ถูกต้อง กรุณาเริ่มใหม่อีกครั้ง',
+            return back()->withInput(['email' => $email])->withErrors([
+                'otp' => 'รหัส OTP ไม่ถูกต้องหรือหมดอายุ กรุณาขอรหัสใหม่',
             ]);
         }
 

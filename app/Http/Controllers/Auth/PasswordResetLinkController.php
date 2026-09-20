@@ -35,7 +35,9 @@ class PasswordResetLinkController extends Controller
             ->first();
 
         if (! $user) {
-            return back()->with('status', 'หากอีเมลนี้มีบัญชีในระบบ เราจะส่งรหัส OTP ไปให้');
+            $request->session()->put('password_reset.email', $email);
+
+            return redirect()->route('password.otp')->with('status', 'หากอีเมลนี้มีบัญชีในระบบ เราจะส่งรหัส OTP ไปให้');
         }
 
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -54,9 +56,7 @@ class PasswordResetLinkController extends Controller
             $resetOtp->delete();
             report($error);
 
-            return back()->withInput()->withErrors([
-                'email' => 'ไม่สามารถส่งอีเมลได้ กรุณาตรวจสอบการตั้งค่า SMTP แล้วลองใหม่',
-            ]);
+            return back()->withInput()->withErrors(['email' => 'ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง']);
         }
 
         $request->session()->put('password_reset.email', $user->email);
