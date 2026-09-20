@@ -36,7 +36,7 @@ body{background:#eee;font-family:"Leelawadee UI",Tahoma,sans-serif;color:#1a3532
 <div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data={{ urlencode(route('repairs.show', $repair)) }}" alt="QR ติดตามงาน {{ $repair->ticket_no }}" width="130" height="130"><div class="small mt-1">{{ $repair->ticket_no }}<br>สแกนเพื่อติดตามสถานะ</div></div>
 <div class="small text-muted">ลงชื่อผู้รับเรื่อง ........................<br><br>ลงชื่อผู้ส่งซ่อม ........................</div>
 </div>
-<div class="mt-4 no-print d-flex gap-2"><button class="btn btn-primary" onclick="window.print()">พิมพ์ / บันทึก PDF (A4)</button><a class="btn btn-success" href="{{ route('repairs.slip-pdf', $repair) }}">โหลด PDF</a><a class="btn btn-outline-secondary" href="{{ url()->previous() }}">กลับ</a></div>
+<div class="mt-4 no-print d-flex gap-2 flex-wrap"><button class="btn btn-primary flex-fill" onclick="window.print()">พิมพ์ / บันทึก PDF (A4)</button><a class="btn btn-success flex-fill" href="{{ route('repairs.slip-pdf', $repair) }}">โหลด PDF</a><a class="btn btn-outline-secondary flex-fill" href="{{ url()->previous() }}">กลับ</a></div>
 </div>
 </div>
 </body>
