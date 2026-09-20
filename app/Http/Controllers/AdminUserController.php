@@ -86,7 +86,13 @@ class AdminUserController extends Controller
     {
         $this->ensureRegularUser($user);
         abort_unless($user->is_active, 422, 'ไม่สามารถส่งลิงก์ให้บัญชีที่ถูกระงับ');
-        $status = Password::sendResetLink(['email' => $user->email]);
+        try {
+            $status = Password::sendResetLink(['email' => $user->email]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Send reset link failed: '.$e->getMessage(), ['user_id' => $user->id]);
+
+            return back()->withErrors(['email' => 'ส่งอีเมลไม่สำเร็จ ตรวจค่า SMTP ใน .env (ต้องใช้ Gmail App Password 16 ตัวอักษร) แล้วลองใหม่']);
+        }
 
         return $status === Password::RESET_LINK_SENT
             ? back()->with('success', 'ส่งลิงก์ตั้งรหัสผ่านใหม่แล้ว')
