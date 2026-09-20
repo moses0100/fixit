@@ -96,6 +96,14 @@ class RepairRequestController extends Controller
         return view('repairs.show', compact('repair', 'deviceHistory') + ['admin' => false]);
     }
 
+    public function slip(Request $request, RepairRequest $repair)
+    {
+        abort_unless($request->user()->role === 'admin' || $repair->user_id === $request->user()->id, 403);
+        $repair->load(['user', 'device', 'histories.user']);
+
+        return view('repairs.slip', compact('repair'));
+    }
+
     public function edit(Request $request, RepairRequest $repair)
     {
         $this->authorizeOwner($request, $repair);

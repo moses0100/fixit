@@ -2,6 +2,7 @@
 @section('title', $repair->ticket_no)
 @section('content')
 <a class="small" href="{{ route($admin ? 'admin.repairs.index' : 'repairs.index') }}">← กลับไปรายการแจ้งซ่อม</a>
+<div class="mb-3 mt-3 no-print"><a class="btn btn-outline-secondary btn-sm" href="{{ route('repairs.slip', $repair) }}" target="_blank" rel="noopener">พิมพ์ใบรับซ่อม / QR</a></div>
 <div class="d-flex justify-content-between gap-3 align-items-start mt-4 mb-4 flex-wrap"><div><div class="eyebrow">{{ $repair->ticket_no }}</div><h1 class="page-title">{{ $repair->title }}</h1><p class="text-muted small mb-0">แจ้งเมื่อ {{ $repair->created_at->timezone('Asia/Bangkok')->format('d/m/Y H:i') }} น.</p></div><span class="status status-{{ $repair->status }}">{{ \App\Models\RepairRequest::STATUSES[$repair->status] }}</span></div>
 <div class="row g-4"><div class="col-lg-8"><div class="panel mb-4"><div class="panel-head"><h2>ข้อมูลการแจ้งซ่อม</h2>@if(!$admin && $repair->status === 'pending')<a class="btn btn-outline-secondary btn-sm" href="{{ route('repairs.edit', $repair) }}">แก้ไขข้อมูล</a>@endif</div><div class="panel-body">
 <div class="row g-4 mb-4">@foreach(['device_type' => 'ประเภทอุปกรณ์', 'brand' => 'ยี่ห้อ', 'model' => 'รุ่น', 'serial_number' => 'Serial Number'] as $field => $label)<div class="col-sm-6"><div class="small text-muted mb-2">{{ $label }}</div><strong>{{ $repair->$field ?: 'ไม่ได้ระบุ' }}</strong></div>@endforeach</div>
