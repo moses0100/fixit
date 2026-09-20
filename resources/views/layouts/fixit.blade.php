@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'ระบบแจ้งซ่อมคอมพิวเตอร์') · FixIT</title>
+    <script>try{if(localStorage.getItem('fixit-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
     @vite(['resources/css/fixit.css', 'resources/js/fixit.js'])
 </head>
 <body>
@@ -30,6 +31,8 @@
 <div class="workspace">
     <header class="topbar">
         <div><strong>ศูนย์บริการแจ้งซ่อม</strong><div class="subtitle">ดูแลอุปกรณ์ ให้พร้อมสำหรับทุกวัน</div></div>
+        <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-theme-toggle aria-label="สลับโหมดมืด">🌙 โหมดมืด</button>
         <div class="dropdown">
             <button class="btn d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><span class="avatar">{{ mb_substr(auth()->user()->name, 0, 1) }}</span><span class="d-none d-sm-inline">{{ auth()->user()->name }}</span></button>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -37,13 +40,14 @@
                 <li><form method="POST" action="{{ route('logout') }}">@csrf<button class="dropdown-item" type="submit">ออกจากระบบ</button></form></li>
             </ul>
         </div>
+        </div>
     </header>
     <main class="content">
 @else
 <nav class="guest-nav"><a class="brand" href="{{ route('home') }}"><span class="brand-mark">+</span> FixIT.</a><div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="{{ route('login') }}">เข้าสู่ระบบ</a><a class="btn btn-primary" href="{{ route('register') }}">เริ่มต้นใช้งาน</a></div></nav>
 <main>
 @endauth
-    @if(session('success'))<div class="alert alert-success" role="status">{{ session('success') }}</div>@endif
+    @if(session('success'))<div class="alert alert-success success-pop" role="status"><span class="success-check">✓</span> {{ session('success') }}</div>@endif
     @if(session('status'))<div class="alert alert-info mx-auto" style="max-width:700px" role="status">{{ session('status') }}</div>@endif
     @if($errors->any())<div class="alert alert-danger mx-auto" style="max-width:1000px" role="alert"><strong>กรุณาตรวจสอบข้อมูลอีกครั้ง</strong><ul class="mb-0 mt-2">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
     @yield('content')
@@ -52,5 +56,6 @@
 @endauth
 </main>
 @auth</div>@endauth
+<div class="send-overlay" data-send-overlay hidden><div class="send-card"><div class="send-spinner"></div><strong>กำลังส่งคำขอแจ้งซ่อม...</strong><span class="small text-muted">กำลังบันทึกข้อมูลและสร้างเลขงาน</span></div></div>
 </body>
 </html>

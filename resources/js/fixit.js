@@ -1,5 +1,14 @@
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
+const themeBtn = document.querySelector('[data-theme-toggle]');
+function paintThemeBtn(){ if(!themeBtn) return; const dark = document.documentElement.getAttribute('data-theme')==='dark'; themeBtn.textContent = dark ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด'; }
+if (themeBtn) themeBtn.addEventListener('click', () => {
+    const dark = document.documentElement.getAttribute('data-theme')==='dark';
+    if (dark) { document.documentElement.removeAttribute('data-theme'); try{localStorage.removeItem('fixit-theme')}catch(e){} }
+    else { document.documentElement.setAttribute('data-theme','dark'); try{localStorage.setItem('fixit-theme','dark')}catch(e){} }
+    paintThemeBtn();
+});
+paintThemeBtn();
 document.querySelectorAll('form[data-validate]').forEach(form => {
     form.addEventListener('submit', event => {
         if (!form.checkValidity()) {
@@ -8,7 +17,12 @@ document.querySelectorAll('form[data-validate]').forEach(form => {
             form.classList.add('was-validated');
             const bad = form.querySelector(':invalid');
             if (bad) bad.focus();
+            return;
         }
+        const btn = form.querySelector('button[type="submit"]');
+        const overlay = document.querySelector('[data-send-overlay]');
+        if (btn) { btn.classList.add('btn-loading'); btn.disabled = true; }
+        if (overlay) overlay.hidden = false;
     });
     form.addEventListener('input', () => form.classList.remove('was-validated'), { once: true });
 });
