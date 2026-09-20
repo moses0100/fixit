@@ -20,6 +20,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::get('/repairs/{repair}/image', [RepairRequestController::class, 'image'])->name('repairs.image');
     Route::get('/repairs/{repair}/slip', [RepairRequestController::class, 'slip'])->name('repairs.slip');
+    Route::get('/repairs/{repair}/slip-pdf', [RepairRequestController::class, 'slipPdf'])->name('repairs.slip-pdf');
     Route::patch('/repairs/{repair}/cancel', [RepairRequestController::class, 'cancel'])->name('repairs.cancel');
     Route::resource('repairs', RepairRequestController::class)->except('destroy');
 

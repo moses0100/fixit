@@ -6,13 +6,20 @@
 <title>ใบรับซ่อม {{ $repair->ticket_no }} · FixIT</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
+@page{size:A4;margin:12mm}
 body{background:#eee;font-family:"Leelawadee UI",Tahoma,sans-serif;color:#1a3532}
 .slip{max-width:760px;margin:24px auto;background:#fff;border-radius:12px;overflow:hidden}
 .slip-head{background:#21695b;color:#fff;padding:22px 28px;display:flex;justify-content:space-between;align-items:center}
 .slip-body{padding:28px}
 .meta{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .qr{border:1px dashed #bbb;border-radius:10px;padding:10px;text-align:center}
-@media print{body{background:#fff}.slip{margin:0;max-width:none;border-radius:0}.no-print{display:none!important}}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff}
+  .slip{margin:0;max-width:none;border-radius:0;box-shadow:none}
+  .no-print{display:none!important}
+  .slip-head{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 </head>
 <body>
@@ -29,7 +36,7 @@ body{background:#eee;font-family:"Leelawadee UI",Tahoma,sans-serif;color:#1a3532
 <div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data={{ urlencode(route('repairs.show', $repair)) }}" alt="QR ติดตามงาน {{ $repair->ticket_no }}" width="130" height="130"><div class="small mt-1">{{ $repair->ticket_no }}<br>สแกนเพื่อติดตามสถานะ</div></div>
 <div class="small text-muted">ลงชื่อผู้รับเรื่อง ........................<br><br>ลงชื่อผู้ส่งซ่อม ........................</div>
 </div>
-<div class="mt-4 no-print d-flex gap-2"><button class="btn btn-primary" onclick="window.print()">พิมพ์ใบรับซ่อม</button><a class="btn btn-outline-secondary" href="{{ url()->previous() }}">กลับ</a></div>
+<div class="mt-4 no-print d-flex gap-2"><button class="btn btn-primary" onclick="window.print()">พิมพ์ / บันทึก PDF (A4)</button><a class="btn btn-success" href="{{ route('repairs.slip-pdf', $repair) }}">โหลด PDF</a><a class="btn btn-outline-secondary" href="{{ url()->previous() }}">กลับ</a></div>
 </div>
 </div>
 </body>

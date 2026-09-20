@@ -104,6 +104,16 @@ class RepairRequestController extends Controller
         return view('repairs.slip', compact('repair'));
     }
 
+    public function slipPdf(Request $request, RepairRequest $repair)
+    {
+        abort_unless($request->user()->role === 'admin' || $repair->user_id === $request->user()->id, 403);
+        $repair->load(['user', 'device']);
+
+        return \Barryvdh\DomPDF\Facade\Pdf::loadView('repairs.slip-pdf', compact('repair'))
+            ->setPaper('a4', 'portrait')
+            ->download($repair->ticket_no.'.pdf');
+    }
+
     public function edit(Request $request, RepairRequest $repair)
     {
         $this->authorizeOwner($request, $repair);
