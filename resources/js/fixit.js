@@ -64,6 +64,7 @@ document.querySelectorAll('form[data-confirm]').forEach(form => {
 const input = document.querySelector('[data-image-input]');
 if (input) input.addEventListener('change', () => {
     const preview = document.querySelector('[data-image-preview]');
+    if (!preview) return;
     if (preview.dataset.objectUrl) URL.revokeObjectURL(preview.dataset.objectUrl);
     const file = input.files[0];
     preview.hidden = !file;
@@ -72,3 +73,22 @@ if (input) input.addEventListener('change', () => {
         preview.src = preview.dataset.objectUrl;
     } else preview.hidden = true;
 });
+const suggestInput = document.querySelector('[data-suggest]');
+const suggestBox = document.querySelector('[data-suggest-box]');
+if (suggestInput && suggestBox) {
+    let sTimer = null;
+    suggestInput.addEventListener('input', () => {
+        clearTimeout(sTimer);
+        sTimer = setTimeout(async () => {
+            const q = suggestInput.value.trim();
+            if (q.length < 2) { suggestBox.hidden = true; return; }
+            try {
+                const res = await fetch('/repairs/suggest?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const data = await res.json();
+                if (!data.count) { suggestBox.hidden = true; return; }
+                suggestBox.innerHTML = 'อาการนี้เคยเจอ ' + data.count + ' ครั้ง' + (data.hint ? ' · แนวทางที่ช่างใช้บ่อย: ' + data.hint.replace(/</g, '&lt;') : '');
+                suggestBox.hidden = false;
+            } catch (e) { suggestBox.hidden = true; }
+        }, 400);
+    });
+}

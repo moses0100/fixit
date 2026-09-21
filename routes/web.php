@@ -18,6 +18,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::get('/repairs/suggest', [RepairRequestController::class, 'suggest'])->name('repairs.suggest');
     Route::get('/repairs/{repair}/image', [RepairRequestController::class, 'image'])->name('repairs.image');
     Route::get('/repairs/{repair}/slip', [RepairRequestController::class, 'slip'])->name('repairs.slip');
     Route::get('/repairs/{repair}/slip-pdf', [RepairRequestController::class, 'slipPdf'])->name('repairs.slip-pdf');

@@ -105,6 +105,30 @@ class RepairRequestController extends Controller
         return view('repairs.show', compact('repair', 'deviceHistory') + ['admin' => false]);
     }
 
+    public function suggest(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        if (mb_strlen($q) < 2) return response()->json(['count' => 0, 'hint' => null, 'cases' => []]);
+        $words = array_values(array_filter(preg_split('/\s+/u', $q), fn ($w) => mb_strlen($w) >= 2));
+        $words = array_slice($words, 0, 5);
+        if (! $words) return response()->json(['count' => 0, 'hint' => null, 'cases' => []]);
+        $query = RepairRequest::query()->where('status', 'completed')->whereNotNull('admin_note');
+        $query->where(function ($inner) use ($words) {
+            foreach ($words as $w) {
+                $inner->orWhere('title', 'like', "%{$w}%")->orWhere('problem_description', 'like', "%{$w}%");
+            }
+        });
+        $cases = $query->latest('completed_at')->limit(10)->get(['ticket_no', 'title', 'admin_note', 'completed_at']);
+        if ($cases->isEmpty()) return response()->json(['count' => 0, 'hint' => null, 'cases' => []]);
+        $total = $query->count();
+        $hint = $cases->groupBy('admin_note')->sortByDesc(fn ($g) => $g->count())->keys()->first();
+        return response()->json([
+            'count' => $total,
+            'hint' => $hint ? mb_substr($hint, 0, 140) : null,
+            'cases' => $cases->take(3)->map(fn ($c) => ['ticket' => $c->ticket_no, 'title' => $c->title])->values(),
+        ]);
+    }
+
     public function slip(Request $request, RepairRequest $repair)
     {
         abort_unless($request->user()->role === 'admin' || $repair->user_id === $request->user()->id, 403);
