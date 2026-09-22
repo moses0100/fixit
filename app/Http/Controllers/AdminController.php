@@ -34,6 +34,14 @@ class AdminController extends Controller
         return view('repairs.index', ['repairs' => $repairs, 'admin' => true]);
     }
 
+    public function export(Request $request)
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\RepairsExport($request),
+            'repairs-'.now()->format('Ymd-His').'.xlsx'
+        );
+    }
+
     public function show(RepairRequest $repair)
     {
         $repair->load(['user', 'device', 'histories.user']);
