@@ -52,12 +52,12 @@ class AdminController extends Controller
 
     public function updateStatus(Request $request, RepairRequest $repair)
     {
-        $data = $request->validate(['status' => ['required', Rule::in(array_keys(RepairRequest::STATUSES))], 'admin_note' => ['nullable', 'string', 'max:5000']]);
+        $data = $request->validate(['status' => ['required', Rule::in(array_keys(RepairRequest::STATUSES))], 'admin_note' => ['nullable', 'string', 'max:5000'], 'is_guidance' => ['sometimes', 'boolean']]);
         $previousStatus = $repair->status;
         $statusChanged = false;
         $noteChanged = false;
         $actorId = $request->user()->id;
-        $updatedRepair = DB::transaction(function () use ($repair, $data, $actorId, &$statusChanged, &$noteChanged, $previousStatus) {
+        $updatedRepair = DB::transaction(function () use ($repair, $data, $request, $actorId, &$statusChanged, &$noteChanged, $previousStatus) {
             $locked = RepairRequest::whereKey($repair->id)->lockForUpdate()->firstOrFail();
             if ($data['status'] !== $locked->status && ! in_array($data['status'], RepairRequest::TRANSITIONS[$locked->status], true)) {
                 throw ValidationException::withMessages(['status' => 'ไม่สามารถเปลี่ยนสถานะตามลำดับนี้ได้ กรุณารีเฟรชเพื่อตรวจสถานะล่าสุด']);
@@ -69,6 +69,7 @@ class AdminController extends Controller
             }
             $locked->status = $data['status'];
             $locked->admin_note = $data['admin_note'] ?? null;
+            $locked->is_guidance = $request->boolean('is_guidance');
             $locked->save();
 
             if ($statusChanged || $noteChanged) {

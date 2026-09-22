@@ -27,7 +27,7 @@ class RepairRequest extends Model
 
     protected function casts(): array
     {
-        return ['completed_at' => 'datetime'];
+        return ['completed_at' => 'datetime', 'is_guidance' => 'boolean'];
     }
 
     public function user(): BelongsTo

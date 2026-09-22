@@ -36,7 +36,7 @@ class SuggestDemoSeeder extends Seeder
             if (RepairRequest::where('ticket_no', $ticket)->exists()) {
                 continue;
             }
-            RepairRequest::create([
+            $repair = RepairRequest::create([
                 'ticket_no' => $ticket,
                 'user_id' => $user->id,
                 'device_type' => 'Notebook',
@@ -51,6 +51,7 @@ class SuggestDemoSeeder extends Seeder
                 'completed_at' => now()->subDays($i + 2),
                 'created_at' => now()->subDays($i + 5),
             ]);
+            $repair->forceFill(['is_guidance' => true])->save();
         }
     }
 }

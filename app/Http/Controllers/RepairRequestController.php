@@ -113,7 +113,10 @@ class RepairRequestController extends Controller
         $words = array_values(array_filter(preg_split('/\s+/u', $q), fn ($w) => mb_strlen($w) >= 2));
         $words = array_slice($words, 0, 5);
         if (! $words) return response()->json($empty);
-        $base = RepairRequest::query()->where('status', 'completed')->whereNotNull('admin_note');
+        $base = RepairRequest::query()
+            ->where('status', 'completed')
+            ->where('is_guidance', true)
+            ->whereNotNull('admin_note');
         $base->where(function ($inner) use ($words) {
             foreach ($words as $w) {
                 $inner->orWhere('title', 'like', "%{$w}%")->orWhere('problem_description', 'like', "%{$w}%");
