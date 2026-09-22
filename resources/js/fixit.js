@@ -15,6 +15,14 @@ if (liveForm) {
     const total = document.querySelector('[data-live-total]');
     const hint = document.querySelector('[data-live-hint]');
     let timer = null;
+    const exp = document.querySelector('[data-export-link]');
+    function syncExport(fromUrl) {
+        if (!exp) return;
+        const base = new URL(exp.href, window.location.origin);
+        const params = new URL(fromUrl, window.location.origin).searchParams;
+        base.search = params.toString();
+        exp.href = base.toString();
+    }
     async function runLive() {
         const url = new URL(liveForm.action);
         url.search = new URLSearchParams(new FormData(liveForm)).toString();
@@ -24,6 +32,7 @@ if (liveForm) {
             const data = await res.json();
             if (result) result.innerHTML = data.html;
             if (total) total.textContent = '/ ' + data.total + ' รายการ';
+            syncExport(url);
             window.history.replaceState(null, '', url);
         } catch (e) { }
         if (hint) hint.textContent = '';
@@ -36,7 +45,7 @@ if (liveForm) {
         if (!link) return;
         e.preventDefault();
         fetch(link.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-            .then(r => r.json()).then(data => { if (result) result.innerHTML = data.html; if (total) total.textContent = '/ ' + data.total + ' รายการ'; window.history.replaceState(null, '', link.href); });
+            .then(r => r.json()).then(data => { if (result) result.innerHTML = data.html; if (total) total.textContent = '/ ' + data.total + ' รายการ'; syncExport(link.href); window.history.replaceState(null, '', link.href); });
     });
 }
 document.querySelectorAll('form[data-validate]').forEach(form => {

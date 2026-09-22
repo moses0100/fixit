@@ -5,12 +5,26 @@ namespace App\Exports;
 use App\Models\RepairRequest;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 
-class RepairsExport implements FromQuery, WithHeadings, WithMapping
+class RepairsExport extends DefaultValueBinder implements FromQuery, WithHeadings, WithMapping, WithCustomValueBinder
 {
     public function __construct(private ?Request $request = null) {}
+
+    // กัน formula injection: ข้อความขึ้นต้น = + - @ ให้เป็นตัวหนังสือล้วน
+    public function bindValue(Cell $cell, $value)
+    {
+        if (is_string($value) && preg_match('/^[=+\-@]/u', $value)) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+            return true;
+        }
+        return parent::bindValue($cell, $value);
+    }
 
     public function query()
     {

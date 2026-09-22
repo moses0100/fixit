@@ -107,25 +107,24 @@ class RepairRequestController extends Controller
 
     public function suggest(Request $request)
     {
+        $empty = ['count' => 0, 'hint' => null];
         $q = trim((string) $request->query('q', ''));
-        if (mb_strlen($q) < 2) return response()->json(['count' => 0, 'hint' => null, 'cases' => []]);
+        if (mb_strlen($q) < 2) return response()->json($empty);
         $words = array_values(array_filter(preg_split('/\s+/u', $q), fn ($w) => mb_strlen($w) >= 2));
         $words = array_slice($words, 0, 5);
-        if (! $words) return response()->json(['count' => 0, 'hint' => null, 'cases' => []]);
-        $query = RepairRequest::query()->where('status', 'completed')->whereNotNull('admin_note');
-        $query->where(function ($inner) use ($words) {
+        if (! $words) return response()->json($empty);
+        $base = RepairRequest::query()->where('status', 'completed')->whereNotNull('admin_note');
+        $base->where(function ($inner) use ($words) {
             foreach ($words as $w) {
                 $inner->orWhere('title', 'like', "%{$w}%")->orWhere('problem_description', 'like', "%{$w}%");
             }
         });
-        $cases = $query->latest('completed_at')->limit(10)->get(['ticket_no', 'title', 'admin_note', 'completed_at']);
-        if ($cases->isEmpty()) return response()->json(['count' => 0, 'hint' => null, 'cases' => []]);
-        $total = $query->count();
-        $hint = $cases->groupBy('admin_note')->sortByDesc(fn ($g) => $g->count())->keys()->first();
+        $total = (clone $base)->count();
+        if (! $total) return response()->json($empty);
+        $top = (clone $base)->select('admin_note', DB::raw('COUNT(*) as matches'))->groupBy('admin_note')->orderByDesc('matches')->first();
         return response()->json([
             'count' => $total,
-            'hint' => $hint ? mb_substr($hint, 0, 140) : null,
-            'cases' => $cases->take(3)->map(fn ($c) => ['ticket' => $c->ticket_no, 'title' => $c->title])->values(),
+            'hint' => $top ? mb_substr((string) $top->admin_note, 0, 140) : null,
         ]);
     }
 
