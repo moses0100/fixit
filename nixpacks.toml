@@ -1,11 +1,4 @@
-[phases.setup]
-nixPkgs = ["php82", "php82Packages.composer", "php82Extensions.gd", "nodejs_20"]
-
-[phases.install]
-cmds = ["composer install --no-dev --optimize-autoloader", "npm ci"]
-
-[phases.build]
-cmds = ["npm run build"]
-
+# ตั้งเฉพาะคำสั่ง start ให้ nixpacks ตรวจจับ setup/install/build เอง
+# เพื่อให้ extension จาก composer.json (เช่น ext-gd) ถูกติดตั้งโดย provider
 [start]
 cmd = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
