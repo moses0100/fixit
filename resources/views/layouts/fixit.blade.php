@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'ระบบแจ้งซ่อมคอมพิวเตอร์') · FixIT</title>
+    <meta name="description" content="FixIT ระบบแจ้งซ่อมและติดตามสถานะคอมพิวเตอร์ แจ้งปัญหา แนบรูป ติดตามความคืบหน้าได้ในที่เดียว">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f6f5b'/%3E%3Ctext x='32' y='44' font-size='36' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E%2B%3C/text%3E%3C/svg%3E">
     <script>try{if(localStorage.getItem('fixit-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
     @vite(['resources/css/fixit.css', 'resources/js/fixit.js'])
 </head>
@@ -53,6 +55,8 @@
     @yield('content')
 @auth
     <footer class="footer"><span>FixIT · ระบบแจ้งซ่อมและติดตามสถานะคอมพิวเตอร์</span><span>Laravel Term Project / {{ date('Y') }}</span></footer>
+@else
+    <footer class="footer landing-footer"><span>FixIT · แจ้งปัญหา ติดตาม กลับมาใช้งาน</span><span><a href="{{ route('login') }}">เข้าสู่ระบบ</a> · <a href="{{ route('register') }}">สมัครสมาชิก</a></span></footer>
 @endauth
 </main>
 @auth</div>@endauth

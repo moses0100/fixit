@@ -8,7 +8,18 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RepairRequestController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+Route::get('/', function () {
+    try {
+        $counts = \App\Models\RepairRequest::selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+    } catch (\Throwable) {
+        $counts = collect();
+    }
+    return view('welcome', [
+        'total' => $counts->sum(),
+        'done' => $counts['completed'] ?? 0,
+        'doing' => ($counts['pending'] ?? 0) + ($counts['repairing'] ?? 0),
+    ]);
+})->name('home');
 
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
