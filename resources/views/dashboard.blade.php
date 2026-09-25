@@ -5,7 +5,7 @@
 <div class="welcome-card d-flex align-items-center justify-content-between gap-4 mb-4"><div><div class="eyebrow">LET'S GET IT FIXED</div><h2>สวัสดี {{ auth()->user()->name }}<br>{{ $admin ? 'วันนี้มีอะไรให้เราดูแลบ้าง?' : 'มีปัญหากับอุปกรณ์ใช่ไหม?' }}</h2><p class="page-lead">{{ $admin ? 'เริ่มจากรายการที่รอตรวจสอบ แล้วอัปเดตความคืบหน้าให้ผู้แจ้งทราบ' : 'แจ้งรายละเอียด แนบรูป แล้วติดตามความคืบหน้าได้เลย' }}</p><a class="btn btn-primary" href="{{ $admin ? route('admin.repairs.index', ['status' => 'pending']) : route('repairs.create') }}">{{ $admin ? 'ดูงานที่รอตรวจสอบ' : '＋ แจ้งซ่อมใหม่' }} →</a></div><div class="welcome-illustration">@include('partials.computer')</div></div>
 <div class="row g-3 mb-4">
 @foreach(['all' => 'รายการทั้งหมด'] + \App\Models\RepairRequest::STATUSES as $status => $label)
-<div class="col-6 col-xl"><a class="d-block metric text-decoration-none" href="{{ route($admin ? 'admin.repairs.index' : 'repairs.index', $status === 'all' ? [] : ['status' => $status]) }}"><span class="metric-icon">{{ ['all'=>'▤','pending'=>'◷','repairing'=>'⚒','completed'=>'✓','cancelled'=>'−'][$status] }}</span><div class="metric-label">{{ $label }}</div><div class="metric-value">{{ $status === 'all' ? $counts->sum() : ($counts[$status] ?? 0) }}</div><span class="small-detail">รายการ</span></a></div>
+<div class="col-6 col-xl"><a class="d-block metric text-decoration-none" data-count-status="{{ $status }}" href="{{ route($admin ? 'admin.repairs.index' : 'repairs.index', $status === 'all' ? [] : ['status' => $status]) }}"><span class="metric-icon">{{ ['all'=>'▤','pending'=>'◷','repairing'=>'⚒','completed'=>'✓','cancelled'=>'−'][$status] }}</span><div class="metric-label">{{ $label }}</div><div class="metric-value">{{ $status === 'all' ? $counts->sum() : ($counts[$status] ?? 0) }}</div><span class="small-detail">รายการ</span></a></div>
 @endforeach
 </div>
 <div class="row g-3 mb-4">
@@ -21,7 +21,19 @@
   var el = document.getElementById('statusSummary');
   if (el) el.textContent = total > 0 ? 'ทั้งหมด '+total+' รายการ · ซ่อมเสร็จ '+counts.completed+' · กำลังซ่อม '+counts.repairing+' · รอตรวจ '+counts.pending : 'ยังไม่มีข้อมูลงานซ่อม';
   var cv = document.getElementById('statusChart');
-  if (cv && window.Chart) new Chart(cv, {type:'doughnut', data:{labels:['รอตรวจสอบ','กำลังซ่อม','ซ่อมเสร็จ','ยกเลิก'], datasets:[{data:[counts.pending,counts.repairing,counts.completed,counts.cancelled], backgroundColor:['#e8b739','#4a8bd4','#2f9e6e','#9aa5a0'], borderWidth:2, borderColor:'#fff'}]}, options:{plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:12}}}}, cutout:'62%'}});
+  var chart = (cv && window.Chart) ? new Chart(cv, {type:'doughnut', data:{labels:['รอตรวจสอบ','กำลังซ่อม','ซ่อมเสร็จ','ยกเลิก'], datasets:[{data:[counts.pending,counts.repairing,counts.completed,counts.cancelled], backgroundColor:['#e8b739','#4a8bd4','#2f9e6e','#9aa5a0'], borderWidth:2, borderColor:'#fff'}]}, options:{plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:12}}}}, cutout:'62%'}}) : null;
+  function paint(c) {
+    document.querySelectorAll('[data-count-status]').forEach(function (a) {
+      var v = a.querySelector('.metric-value');
+      if (v && c[a.getAttribute('data-count-status')] !== undefined) v.textContent = c[a.getAttribute('data-count-status')];
+    });
+    if (chart) { chart.data.datasets[0].data = [c.pending, c.repairing, c.completed, c.cancelled]; chart.update(); }
+    if (el) { var t = (c.pending||0)+(c.repairing||0)+(c.completed||0)+(c.cancelled||0); el.textContent = t > 0 ? 'ทั้งหมด '+t+' รายการ · ซ่อมเสร็จ '+c.completed+' · กำลังซ่อม '+c.repairing+' · รอตรวจ '+c.pending : 'ยังไม่มีข้อมูลงานซ่อม'; }
+  }
+  setInterval(function () {
+    fetch('/dashboard/counts', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function (r) { return r.json(); }).then(paint).catch(function () {});
+  }, 15000);
 })();
 </script>
 @endsection

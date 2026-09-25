@@ -64,6 +64,17 @@ class SuggestExportTest extends TestCase
             ->assertOk()->assertJson(['count' => 0, 'hint' => null]);
     }
 
+    public function test_dashboard_counts_returns_own_totals(): void
+    {
+        $this->getJson('/dashboard/counts')->assertUnauthorized();
+        $me = User::factory()->create();
+        RepairRequest::factory()->create(['user_id' => $me->id, 'status' => 'pending']);
+        RepairRequest::factory()->create(['user_id' => $me->id, 'status' => 'completed']);
+        RepairRequest::factory()->create(['status' => 'pending']);
+        $this->actingAs($me)->getJson('/dashboard/counts')->assertOk()
+            ->assertJson(['all' => 2, 'pending' => 1, 'completed' => 1, 'repairing' => 0, 'cancelled' => 0]);
+    }
+
     public function test_export_downloads_xlsx_for_admin_only(): void
     {
         $this->get('/admin/repairs/export')->assertRedirect('/login');

@@ -16,4 +16,17 @@ class DashboardController extends Controller
             'admin' => false,
         ]);
     }
+
+    public function counts(Request $request)
+    {
+        $counts = $request->user()->repairRequests()
+            ->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+        return response()->json([
+            'all' => (int) $counts->sum(),
+            'pending' => (int) ($counts['pending'] ?? 0),
+            'repairing' => (int) ($counts['repairing'] ?? 0),
+            'completed' => (int) ($counts['completed'] ?? 0),
+            'cancelled' => (int) ($counts['cancelled'] ?? 0),
+        ]);
+    }
 }
