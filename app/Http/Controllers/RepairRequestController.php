@@ -43,7 +43,7 @@ class RepairRequestController extends Controller
             'title' => ['required', 'string', 'max:150'],
             'problem_description' => ['required', 'string', 'max:5000'],
             'urgency' => ['required', Rule::in(array_keys(RepairRequest::URGENCIES))],
-            'contact_phone' => ['required', 'string', 'regex:/^[0-9+() .-]{8,30}$/'],
+            'contact_phone' => ['required', 'string', 'regex:/^[0-9][0-9+() .-]{7,18}[0-9]$/'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'remove_image' => ['sometimes', 'boolean'],
         ], [
@@ -51,7 +51,7 @@ class RepairRequestController extends Controller
             'max' => ':attribute มีขนาดหรือความยาวเกินที่กำหนด',
             'image.image' => 'กรุณาแนบไฟล์รูปภาพ',
             'image.mimes' => 'รองรับเฉพาะ JPG, PNG และ WebP',
-            'contact_phone.regex' => 'กรุณากรอกเบอร์ติดต่อ 8–30 ตัวอักษร โดยใช้ตัวเลขและเครื่องหมายโทรศัพท์',
+            'contact_phone.regex' => 'กรุณากรอกเบอร์โทรศัพท์ 9–20 ตัวอักษร ขึ้นต้นและลงท้ายด้วยตัวเลข เช่น 0812345678',
         ], ['brand' => 'ยี่ห้อ', 'title' => 'หัวข้อปัญหา', 'problem_description' => 'รายละเอียดอาการ', 'contact_phone' => 'เบอร์ติดต่อ', 'image' => 'รูปภาพ']);
     }
 

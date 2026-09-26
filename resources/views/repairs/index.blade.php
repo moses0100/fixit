@@ -1,7 +1,7 @@
 @extends('layouts.fixit')
 @section('title', $admin ? 'จัดการงานซ่อม' : 'รายการแจ้งซ่อมของฉัน')
 @section('content')
-<div class="d-flex justify-content-between align-items-start gap-3 mb-4 flex-wrap"><div><div class="eyebrow">REPAIR REQUESTS</div><h1 class="page-title">{{ $admin ? 'จัดการงานซ่อม' : 'รายการแจ้งซ่อมของฉัน' }}</h1><p class="page-lead mb-0">{{ $admin ? 'ตรวจสอบและดูแลทุกคำขอแจ้งซ่อมในระบบ' : 'ค้นหาและติดตามความคืบหน้าของอุปกรณ์ของคุณ' }}</p></div><a href="{{ route('repairs.create') }}" class="btn btn-primary">＋ แจ้งซ่อมใหม่</a></div>
+<div class="d-flex justify-content-between align-items-start gap-3 mb-4 flex-wrap"><div><div class="eyebrow">REPAIR REQUESTS</div><h1 class="page-title">{{ $admin ? 'จัดการงานซ่อม' : 'รายการแจ้งซ่อมของฉัน' }}</h1><p class="page-lead mb-0">{{ $admin ? 'ตรวจสอบและดูแลทุกคำขอแจ้งซ่อมในระบบ' : 'ค้นหาและติดตามความคืบหน้าของอุปกรณ์ของคุณ' }}</p></div>@if($admin)<a href="{{ route('repairs.create') }}" class="btn btn-primary">＋ แจ้งซ่อมใหม่</a>@endif</div>
 <div class="panel">
 <form method="GET" class="filters row g-3 m-0" data-live-search action="{{ route($admin ? 'admin.repairs.index' : 'repairs.index') }}">
     <div class="col-lg-4"><label class="form-label" for="q">ค้นหารายการ</label><input class="form-control" id="q" name="q" value="{{ request('q') }}" maxlength="150" placeholder="เลขแจ้งซ่อม / อุปกรณ์ / Serial / ชื่อผู้แจ้ง" autocomplete="off"></div>

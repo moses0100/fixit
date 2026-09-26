@@ -13,16 +13,16 @@
 <body>
 @auth
 <aside class="sidebar">
-    <a class="brand" href="{{ route('dashboard') }}"><span class="brand-mark">+</span> FixIT<span style="color:#8ba583">.</span></a>
+    <a class="brand" href="{{ route('dashboard') }}"><span class="brand-mark">+</span> FixIT</a>
     <div class="small-detail mt-2">COMPUTER REPAIR SYSTEM</div>
     <nav aria-label="เมนูหลัก">
-        <div class="sidebar-caption">WORKSPACE</div>
+        <div class="sidebar-caption">เมนู</div>
         <a class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><span class="nav-symbol">▦</span> ภาพรวมของฉัน</a>
         <a class="nav-item {{ request()->routeIs('repairs.index','repairs.show','repairs.edit') ? 'active' : '' }}" href="{{ route('repairs.index') }}"><span class="nav-symbol">▤</span> รายการแจ้งซ่อม</a>
         <a class="nav-item {{ request()->routeIs('repairs.create') ? 'active' : '' }}" href="{{ route('repairs.create') }}"><span class="nav-symbol">＋</span> แจ้งซ่อมใหม่</a>
         <a class="nav-item {{ request()->routeIs('notifications.*') ? 'active' : '' }}" href="{{ route('notifications.index') }}"><span class="nav-symbol">♢</span> การแจ้งเตือน @if(auth()->user()->unreadNotifications()->count())<span class="badge rounded-pill text-bg-danger ms-auto">{{ auth()->user()->unreadNotifications()->count() }}</span>@endif</a>
         @if(auth()->user()->role === 'admin')
-            <div class="sidebar-caption">ADMINISTRATION</div>
+            <div class="sidebar-caption">ผู้ดูแลระบบ</div>
             <a class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><span class="nav-symbol">◈</span> ภาพรวมผู้ดูแล</a>
             <a class="nav-item {{ request()->routeIs('admin.repairs.*') ? 'active' : '' }}" href="{{ route('admin.repairs.index') }}"><span class="nav-symbol">▥</span> จัดการงานซ่อม</a>
             <a class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><span class="nav-symbol">♙</span> จัดการสมาชิก</a>
@@ -34,7 +34,7 @@
     <header class="topbar">
         <div><strong>ศูนย์บริการแจ้งซ่อม</strong><div class="subtitle">ดูแลอุปกรณ์ ให้พร้อมสำหรับทุกวัน</div></div>
         <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-secondary btn-sm" type="button" data-theme-toggle aria-label="สลับโหมดมืด">🌙 โหมดมืด</button>
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-theme-toggle aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">🌙</button>
         <div class="dropdown">
             <button class="btn d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><span class="avatar">{{ mb_substr(auth()->user()->name, 0, 1) }}</span><span class="d-none d-sm-inline">{{ auth()->user()->name }}</span></button>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -46,7 +46,7 @@
     </header>
     <main class="content">
 @else
-<nav class="guest-nav"><a class="brand" href="{{ route('home') }}"><span class="brand-mark">+</span> FixIT.</a><div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="{{ route('login') }}">เข้าสู่ระบบ</a><a class="btn btn-primary" href="{{ route('register') }}">เริ่มต้นใช้งาน</a></div></nav>
+<nav class="guest-nav"><a class="brand" href="{{ route('home') }}"><span class="brand-mark">+</span> FixIT</a><div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="{{ route('login') }}">เข้าสู่ระบบ</a><a class="btn btn-primary" href="{{ route('register') }}">เริ่มต้นใช้งาน</a></div></nav>
 <main>
 @endauth
     @if(session('success'))<div class="alert alert-success success-pop" role="status"><span class="success-check">✓</span> {{ session('success') }}</div>@endif
@@ -56,7 +56,7 @@
 @auth
     <footer class="footer"><span>FixIT · ระบบแจ้งซ่อมและติดตามสถานะคอมพิวเตอร์</span><span>Laravel Term Project / {{ date('Y') }}</span></footer>
 @else
-    <footer class="footer landing-footer"><span>FixIT · แจ้งปัญหา ติดตาม กลับมาใช้งาน</span><span><a href="{{ route('login') }}">เข้าสู่ระบบ</a> · <a href="{{ route('register') }}">สมัครสมาชิก</a></span></footer>
+    <footer class="footer landing-footer"><span>FixIT · แจ้งปัญหา ติดตาม กลับมาใช้งาน</span><span>Laravel Term Project / {{ date('Y') }}</span></footer>
 @endauth
 </main>
 @auth</div>@endauth

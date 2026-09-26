@@ -1,7 +1,7 @@
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const themeBtn = document.querySelector('[data-theme-toggle]');
-function paintThemeBtn(){ if(!themeBtn) return; const dark = document.documentElement.getAttribute('data-theme')==='dark'; themeBtn.textContent = dark ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด'; }
+function paintThemeBtn(){ if(!themeBtn) return; const dark = document.documentElement.getAttribute('data-theme')==='dark'; themeBtn.textContent = dark ? '☀️' : '🌙'; }
 if (themeBtn) themeBtn.addEventListener('click', () => {
     const dark = document.documentElement.getAttribute('data-theme')==='dark';
     if (dark) { document.documentElement.removeAttribute('data-theme'); try{localStorage.removeItem('fixit-theme')}catch(e){} }

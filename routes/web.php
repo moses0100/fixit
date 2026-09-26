@@ -9,6 +9,7 @@ use App\Http\Controllers\RepairRequestController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (auth()->check()) return redirect()->route('dashboard');
     try {
         $counts = \App\Models\RepairRequest::selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
     } catch (\Throwable) {
