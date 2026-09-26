@@ -5,7 +5,7 @@
 <title>ใบรับซ่อม {{ $repair->ticket_no }}</title>
 <style>
 @page{size:A4;margin:15mm}
-body{font-family:"DejaVu Sans",sans-serif;font-size:12px;color:#222}
+body{font-family:"Tahoma",sans-serif;font-size:12px;color:#222}
 h1{font-size:20px;margin:0}
 .head{border-bottom:3px solid #21695b;padding-bottom:10px;margin-bottom:14px}
 table{width:100%;border-collapse:collapse;margin:10px 0}
@@ -31,7 +31,6 @@ th{background:#eee;width:28%}
 @if($repair->admin_note)<tr><th>Technician Note</th><td>{{ $repair->admin_note }}</td></tr>@endif
 <tr><th>Track URL</th><td>{{ route('repairs.show', $repair) }}</td></tr>
 </table>
-<p class="small">Note: DomPDF uses DejaVu Sans which renders Thai partially. For perfect Thai print, use the Slip page Print to PDF (A4) button instead.</p>
 <table class="sign"><tr><td>.........................<br>Receiver</td><td>.........................<br>Customer</td></tr></table>
 </body>
 </html>
