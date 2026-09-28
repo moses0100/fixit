@@ -10,11 +10,12 @@
     <script>try{if(localStorage.getItem('fixit-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
     @vite(['resources/css/fixit.css', 'resources/js/fixit.js'])
 </head>
-<body>
+<body class="@auth{{ auth()->user()->role === 'admin' ? 'theme-admin' : '' }}@endauth">
 @auth
-<aside class="sidebar">
-    <a class="brand" href="{{ route('dashboard') }}"><span class="brand-mark">+</span> FixIT</a>
-    <div class="small-detail mt-2">COMPUTER REPAIR SYSTEM</div>
+@php($isAdmin = auth()->user()->role === 'admin')
+<aside class="sidebar{{ $isAdmin ? ' admin-side' : '' }}">
+    <a class="brand" href="{{ route('dashboard') }}"><span class="brand-mark">+</span> FixIT{{ $isAdmin ? ' Admin' : '' }}</a>
+    <div class="small-detail mt-2">{{ $isAdmin ? 'ADMIN CONSOLE' : 'COMPUTER REPAIR SYSTEM' }}</div>
     <nav aria-label="เมนูหลัก">
         <div class="sidebar-caption">เมนู</div>
         <a class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><span class="nav-symbol">▦</span> ภาพรวมของฉัน</a>
@@ -28,11 +29,11 @@
             <a class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><span class="nav-symbol">♙</span> จัดการสมาชิก</a>
         @endif
     </nav>
-    <div class="sidebar-bottom"><div class="small-detail">แจ้งปัญหา · ติดตาม · กลับมาใช้งาน</div><p class="small-detail mb-0">ทุกงานซ่อมอยู่ในที่เดียว</p></div>
+    <div class="sidebar-bottom"><div class="small-detail">{{ $isAdmin ? 'ดูแลทุกงานซ่อมในที่เดียว' : 'แจ้งปัญหา · ติดตาม · กลับมาใช้งาน' }}</div><p class="small-detail mb-0">{{ $isAdmin ? 'ตรวจสอบแล้วอัปเดตให้ผู้แจ้งทราบ' : 'ทุกงานซ่อมอยู่ในที่เดียว' }}</p></div>
 </aside>
 <div class="workspace">
     <header class="topbar">
-        <div><strong>ศูนย์บริการแจ้งซ่อม</strong><div class="subtitle">ดูแลอุปกรณ์ ให้พร้อมสำหรับทุกวัน</div></div>
+        <div><strong>{{ $isAdmin ? 'ศูนย์ดูแลระบบ' : 'ศูนย์บริการแจ้งซ่อม' }}</strong><div class="subtitle">{{ $isAdmin ? 'ตรวจสอบงาน อัปเดตสถานะ ดูแลสมาชิก' : 'ดูแลอุปกรณ์ ให้พร้อมสำหรับทุกวัน' }}</div></div>
         <div class="d-flex align-items-center gap-2">
         <button class="btn btn-outline-secondary btn-sm" type="button" data-theme-toggle aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">🌙</button>
         <div class="dropdown">
