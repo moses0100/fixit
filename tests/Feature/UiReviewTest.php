@@ -53,4 +53,11 @@ class UiReviewTest extends TestCase
             ->assertSee('aria-label="การแจ้งเตือน"', false)
             ->assertSee(route('notifications.index'), false);
     }
+
+    public function test_user_cta_always_visible(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->get(route('repairs.index'))->assertSee('แจ้งซ่อมใหม่', false);
+        $this->actingAs($user)->get('/dashboard')->assertSee('metric-grid', false)->assertSee('action-strip', false);
+    }
 }

@@ -43,8 +43,8 @@
     <div class="usernav-links">
         <a class="usernav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">ภาพรวม</a>
         <a class="usernav-link {{ request()->routeIs('repairs.index','repairs.show','repairs.edit') ? 'active' : '' }}" href="{{ route('repairs.index') }}">รายการของฉัน</a>
-        <a class="usernav-link {{ request()->routeIs('repairs.create') ? 'active' : '' }}" href="{{ route('repairs.create') }}">＋ แจ้งซ่อม</a>
     </div>
+    <a class="btn btn-primary btn-sm text-nowrap" href="{{ route('repairs.create') }}">＋ แจ้งซ่อม</a>
     <div class="d-flex align-items-center gap-2">
     @include('partials.top-actions')
     </div>
