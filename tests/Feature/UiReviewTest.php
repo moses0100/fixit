@@ -32,8 +32,8 @@ class UiReviewTest extends TestCase
     public function test_admin_and_user_shells_look_different(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($admin)->get('/admin')->assertSee('ศูนย์ดูแลระบบ', false)->assertSee('theme-admin', false);
-        $this->actingAs(User::factory()->create())->get('/dashboard')->assertSee('ศูนย์บริการแจ้งซ่อม', false)->assertDontSee('theme-admin', false);
+        $this->actingAs($admin)->get('/admin')->assertSee('ศูนย์ดูแลระบบ', false)->assertSee('theme-admin', false)->assertSee('sidebar', false);
+        $this->actingAs(User::factory()->create())->get('/dashboard')->assertSee('usernav', false)->assertSee('รายการของฉัน', false)->assertDontSee('theme-admin', false)->assertDontSee('ศูนย์ดูแลระบบ', false);
     }
 
     public function test_create_form_shows_own_devices_and_last_phone(): void

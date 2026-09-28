@@ -13,52 +13,44 @@
 <body class="@auth{{ auth()->user()->role === 'admin' ? 'theme-admin' : '' }}@endauth">
 @auth
 @php($isAdmin = auth()->user()->role === 'admin')
-<aside class="sidebar{{ $isAdmin ? ' admin-side' : '' }}">
-    <a class="brand" href="{{ route('dashboard') }}"><span class="brand-mark">+</span> FixIT{{ $isAdmin ? ' Admin' : '' }}</a>
-    <div class="small-detail mt-2">{{ $isAdmin ? 'ADMIN CONSOLE' : 'COMPUTER REPAIR SYSTEM' }}</div>
+@if($isAdmin)
+<aside class="sidebar admin-side">
+    <a class="brand" href="{{ route('dashboard') }}"><span class="brand-mark">+</span> FixIT Admin</a>
+    <div class="small-detail mt-2">ADMIN CONSOLE</div>
     <nav aria-label="เมนูหลัก">
         <div class="sidebar-caption">เมนู</div>
         <a class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><span class="nav-symbol">▦</span> ภาพรวมของฉัน</a>
         <a class="nav-item {{ request()->routeIs('repairs.index','repairs.show','repairs.edit') ? 'active' : '' }}" href="{{ route('repairs.index') }}"><span class="nav-symbol">▤</span> รายการแจ้งซ่อม</a>
         <a class="nav-item {{ request()->routeIs('repairs.create') ? 'active' : '' }}" href="{{ route('repairs.create') }}"><span class="nav-symbol">＋</span> แจ้งซ่อมใหม่</a>
-        <a class="nav-item {{ request()->routeIs('notifications.*') ? 'active' : '' }}" href="{{ route('notifications.index') }}"><span class="nav-symbol">♢</span> การแจ้งเตือน @if(auth()->user()->unreadNotifications()->count())<span class="badge rounded-pill text-bg-danger ms-auto">{{ auth()->user()->unreadNotifications()->count() }}</span>@endif</a>
-        @if(auth()->user()->role === 'admin')
-            <div class="sidebar-caption">ผู้ดูแลระบบ</div>
-            <a class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><span class="nav-symbol">◈</span> ภาพรวมผู้ดูแล</a>
-            <a class="nav-item {{ request()->routeIs('admin.repairs.*') ? 'active' : '' }}" href="{{ route('admin.repairs.index') }}"><span class="nav-symbol">▥</span> จัดการงานซ่อม</a>
-            <a class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><span class="nav-symbol">♙</span> จัดการสมาชิก</a>
-        @endif
+        <div class="sidebar-caption">ผู้ดูแลระบบ</div>
+        <a class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><span class="nav-symbol">◈</span> ภาพรวมผู้ดูแล</a>
+        <a class="nav-item {{ request()->routeIs('admin.repairs.*') ? 'active' : '' }}" href="{{ route('admin.repairs.index') }}"><span class="nav-symbol">▥</span> จัดการงานซ่อม</a>
+        <a class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><span class="nav-symbol">♙</span> จัดการสมาชิก</a>
     </nav>
-    <div class="sidebar-bottom"><div class="small-detail">{{ $isAdmin ? 'ดูแลทุกงานซ่อมในที่เดียว' : 'แจ้งปัญหา · ติดตาม · กลับมาใช้งาน' }}</div><p class="small-detail mb-0">{{ $isAdmin ? 'ตรวจสอบแล้วอัปเดตให้ผู้แจ้งทราบ' : 'ทุกงานซ่อมอยู่ในที่เดียว' }}</p></div>
+    <div class="sidebar-bottom"><div class="small-detail">ดูแลทุกงานซ่อมในที่เดียว</div><p class="small-detail mb-0">ตรวจสอบแล้วอัปเดตให้ผู้แจ้งทราบ</p></div>
 </aside>
 <div class="workspace">
     <header class="topbar">
-        <div><strong>{{ $isAdmin ? 'ศูนย์ดูแลระบบ' : 'ศูนย์บริการแจ้งซ่อม' }}</strong><div class="subtitle">{{ $isAdmin ? 'ตรวจสอบงาน อัปเดตสถานะ ดูแลสมาชิก' : 'ดูแลอุปกรณ์ ให้พร้อมสำหรับทุกวัน' }}</div></div>
+        <div><strong>ศูนย์ดูแลระบบ</strong><div class="subtitle">ตรวจสอบงาน อัปเดตสถานะ ดูแลสมาชิก</div></div>
         <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-secondary btn-sm" type="button" data-theme-toggle aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">🌙</button>
-        @php($unreadCount = auth()->user()->unreadNotifications()->count())
-        <div class="dropdown">
-            <button class="btn btn-outline-secondary btn-sm position-relative" data-bs-toggle="dropdown" aria-expanded="false" aria-label="การแจ้งเตือน">🔔@if($unreadCount)<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>@endif</button>
-            <ul class="dropdown-menu dropdown-menu-end p-0" style="width:320px;max-width:90vw">
-                <li class="px-3 py-2 fw-bold border-bottom">การแจ้งเตือน</li>
-                @forelse(auth()->user()->notifications()->latest()->limit(5)->get() as $item)
-                <li class="{{ $item->read_at ? '' : 'notification-unread' }}"><form method="POST" action="{{ route('notifications.read', $item->id) }}">@csrf<button class="dropdown-item py-2" type="submit"><span class="d-block small fw-semibold">{{ $item->data['message'] ?? 'มีการอัปเดตใหม่' }}</span><span class="d-block small text-muted">{{ $item->created_at->timezone('Asia/Bangkok')->format('d/m/Y H:i') }}</span></button></form></li>
-                @empty
-                <li class="px-3 py-3 small text-muted">ยังไม่มีการแจ้งเตือน</li>
-                @endforelse
-                <li class="border-top"><a class="dropdown-item text-center small fw-semibold py-2" href="{{ route('notifications.index') }}">ดูทั้งหมด</a></li>
-            </ul>
-        </div>
-        <div class="dropdown">
-            <button class="btn d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><span class="avatar">{{ mb_substr(auth()->user()->name, 0, 1) }}</span><span class="d-none d-sm-inline">{{ auth()->user()->name }}</span></button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ route('profile.edit') }}">ข้อมูลบัญชี</a></li>
-                <li><form method="POST" action="{{ route('logout') }}">@csrf<button class="dropdown-item" type="submit">ออกจากระบบ</button></form></li>
-            </ul>
-        </div>
+        @include('partials.top-actions')
         </div>
     </header>
     <main class="content">
+@else
+<nav class="usernav" aria-label="เมนูหลัก">
+    <a class="brand" href="{{ route('dashboard') }}"><span class="brand-mark">+</span> FixIT</a>
+    <div class="usernav-links">
+        <a class="usernav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">ภาพรวม</a>
+        <a class="usernav-link {{ request()->routeIs('repairs.index','repairs.show','repairs.edit') ? 'active' : '' }}" href="{{ route('repairs.index') }}">รายการของฉัน</a>
+        <a class="usernav-link {{ request()->routeIs('repairs.create') ? 'active' : '' }}" href="{{ route('repairs.create') }}">＋ แจ้งซ่อม</a>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+    @include('partials.top-actions')
+    </div>
+</nav>
+<main class="content user-content">
+@endif
 @else
 <nav class="guest-nav"><a class="brand" href="{{ route('home') }}"><span class="brand-mark">+</span> FixIT</a><div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="{{ route('login') }}">เข้าสู่ระบบ</a><a class="btn btn-primary" href="{{ route('register') }}">เริ่มต้นใช้งาน</a></div></nav>
 <main>
@@ -73,7 +65,7 @@
     <footer class="footer landing-footer"><span>FixIT · แจ้งปัญหา ติดตาม กลับมาใช้งาน</span><span>Laravel Term Project / {{ date('Y') }}</span></footer>
 @endauth
 </main>
-@auth</div>@endauth
+@auth@if(auth()->user()->role === 'admin')</div>@endif@endauth
 <div class="send-overlay" data-send-overlay hidden><div class="send-card"><div class="send-spinner"></div><strong>กำลังส่งคำขอแจ้งซ่อม...</strong><span class="small text-muted">กำลังบันทึกข้อมูลและสร้างเลขงาน</span></div></div>
 </body>
 </html>
