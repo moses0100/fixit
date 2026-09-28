@@ -65,7 +65,11 @@
     <footer class="footer landing-footer"><span>FixIT · แจ้งปัญหา ติดตาม กลับมาใช้งาน</span><span>Laravel Term Project / {{ date('Y') }}</span></footer>
 @endauth
 </main>
-@auth@if(auth()->user()->role === 'admin')</div>@endif@endauth
+@auth
+@if(auth()->user()->role === 'admin')
+</div>
+@endif
+@endauth
 <div class="send-overlay" data-send-overlay hidden><div class="send-card"><div class="send-spinner"></div><strong>กำลังส่งคำขอแจ้งซ่อม...</strong><span class="small text-muted">กำลังบันทึกข้อมูลและสร้างเลขงาน</span></div></div>
 </body>
 </html>

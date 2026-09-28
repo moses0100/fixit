@@ -59,5 +59,6 @@ class UiReviewTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user)->get(route('repairs.index'))->assertSee('แจ้งซ่อมใหม่', false);
         $this->actingAs($user)->get('/dashboard')->assertSee('metric-grid', false)->assertSee('action-strip', false);
+        $this->actingAs($user)->get('/dashboard')->assertSee('status=pending', false)->assertSee('status=repairing', false);
     }
 }
