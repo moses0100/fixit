@@ -9,6 +9,13 @@
 @csrf
 @if($repair->exists) @method('PUT') @endif
 <div class="row g-4"><div class="col-lg-8">
+@if(($devices ?? collect())->isNotEmpty())
+<div class="panel mb-4"><div class="panel-head"><h2><span class="section-number">00</span> อุปกรณ์ของฉัน</h2><span class="small text-muted">กดเพื่อกรอกอัตโนมัติ</span></div><div class="panel-body row g-2">
+@foreach($devices as $device)
+<div class="col-md-6"><button type="button" class="btn btn-outline-secondary w-100 text-start" data-device data-type="{{ $device->device_type }}" data-brand="{{ $device->brand }}" data-model="{{ $device->model }}" data-serial="{{ $device->serial_number }}" data-phone="{{ $device->repairRequests->first()?->contact_phone }}"><strong>{{ $device->display_name }}</strong><span class="d-block small text-muted">ซ่อมมาแล้ว {{ $device->repair_requests_count }} ครั้ง · ล่าสุด {{ $device->repairRequests->first()?->title ?? '-' }}</span></button></div>
+@endforeach
+</div></div>
+@endif
 <div class="panel mb-4"><div class="panel-head"><h2><span class="section-number">01</span> ข้อมูลอุปกรณ์</h2></div><div class="panel-body row g-3">
 <div class="col-md-6"><label class="form-label" for="device_type">ประเภทอุปกรณ์ <span class="req">*</span></label><select class="form-select @error('device_type') is-invalid @enderror" name="device_type" id="device_type" required>@foreach(\App\Models\RepairRequest::DEVICES as $type)<option @selected(old('device_type', $repair->device_type) === $type)>{{ $type }}</option>@endforeach</select>@error('device_type')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
 @foreach(['brand' => 'ยี่ห้อ <span class="req">*</span>', 'model' => 'รุ่น', 'serial_number' => 'Serial Number'] as $field => $label)
@@ -25,7 +32,7 @@
 </div></div>
 </div><div class="col-lg-4"><div class="panel mb-4"><div class="panel-head"><h2><span class="section-number">03</span> การติดต่อ</h2></div><div class="panel-body">
 <label class="form-label" for="urgency">ความเร่งด่วน <span class="req">*</span></label><select class="form-select @error('urgency') is-invalid @enderror mb-1" name="urgency" id="urgency" required>@foreach(\App\Models\RepairRequest::URGENCIES as $value => $label)<option value="{{ $value }}" @selected(old('urgency', $repair->urgency ?? 'medium') === $value)>{{ $label }}</option>@endforeach</select>@error('urgency')<div class="invalid-feedback d-block mb-3">{{ $message }}</div>@enderror
-<label class="form-label mt-3" for="contact_phone">เบอร์ติดต่อ <span class="req">*</span></label><input class="form-control @error('contact_phone') is-invalid @enderror" id="contact_phone" name="contact_phone" type="tel" inputmode="numeric" autocomplete="tel" required maxlength="10" pattern="0[0-9]{9}" value="{{ old('contact_phone', $repair->contact_phone) }}" placeholder="08xxxxxxxx" aria-describedby="phone-help">@error('contact_phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+<label class="form-label mt-3" for="contact_phone">เบอร์ติดต่อ <span class="req">*</span></label><input class="form-control @error('contact_phone') is-invalid @enderror" id="contact_phone" name="contact_phone" type="tel" inputmode="numeric" autocomplete="tel" required maxlength="10" pattern="0[0-9]{9}" value="{{ old('contact_phone', $repair->contact_phone ?? ($lastPhone ?? null)) }}" placeholder="08xxxxxxxx" aria-describedby="phone-help">@error('contact_phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
 <div class="form-text" id="phone-help">เบอร์มือถือ 10 หลัก เช่น 0812345678</div>
 </div></div>
 <div class="welcome-card p-4"><h3 class="h6 fw-bold">หลังส่งแจ้งซ่อมแล้ว</h3><p class="small page-lead">คุณจะได้รับเลขอ้างอิง และติดตามสถานะได้จากหน้ารายการแจ้งซ่อม แก้ไขหรือยกเลิกได้ก่อนผู้ดูแลเริ่มดำเนินการ</p><button type="submit" class="btn btn-primary w-100">{{ $repair->exists ? 'บันทึกการแก้ไข' : 'ส่งคำขอแจ้งซ่อม' }} →</button></div>

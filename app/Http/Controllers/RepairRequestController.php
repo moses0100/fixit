@@ -28,9 +28,13 @@ class RepairRequestController extends Controller
         return view('repairs.index', ['repairs' => $repairs, 'admin' => false]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('repairs.form', ['repair' => new RepairRequest]);
+        $user = $request->user();
+        $devices = $user->devices()->withCount('repairRequests')->with(['repairRequests' => fn ($q) => $q->latest('created_at')->latest('id')->limit(1)])->get();
+        $lastPhone = $user->repairRequests()->latest('created_at')->latest('id')->value('contact_phone');
+
+        return view('repairs.form', ['repair' => new RepairRequest, 'devices' => $devices, 'lastPhone' => $lastPhone]);
     }
 
     private function validated(Request $request): array

@@ -82,6 +82,17 @@ if (input) input.addEventListener('change', () => {
         preview.src = preview.dataset.objectUrl;
     } else preview.hidden = true;
 });
+document.querySelectorAll('[data-device]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+        set('device_type', btn.dataset.type);
+        set('brand', btn.dataset.brand);
+        set('model', btn.dataset.model);
+        set('serial_number', btn.dataset.serial);
+        if (btn.dataset.phone) set('contact_phone', btn.dataset.phone);
+        document.getElementById('title')?.focus();
+    });
+});
 const suggestInput = document.querySelector('[data-suggest]');
 const suggestBox = document.querySelector('[data-suggest-box]');
 if (suggestInput && suggestBox) {
