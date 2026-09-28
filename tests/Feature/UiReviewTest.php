@@ -28,4 +28,29 @@ class UiReviewTest extends TestCase
         $this->actingAs($user)->post('/repairs', $data + ['contact_phone' => '0812345678'])
             ->assertSessionHasNoErrors();
     }
+
+    public function test_admin_and_user_shells_look_different(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->get('/admin')->assertSee('ศูนย์ดูแลระบบ', false)->assertSee('theme-admin', false);
+        $this->actingAs(User::factory()->create())->get('/dashboard')->assertSee('ศูนย์บริการแจ้งซ่อม', false)->assertDontSee('theme-admin', false);
+    }
+
+    public function test_create_form_shows_own_devices_and_last_phone(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->post('/repairs', ['device_type' => 'Notebook', 'brand' => 'Acer',
+            'model' => 'Nitro 5', 'title' => 'จอเสีย', 'problem_description' => 'จอไม่ติด',
+            'urgency' => 'medium', 'contact_phone' => '0811111111'])->assertSessionHasNoErrors();
+        $res = $this->actingAs($user)->get(route('repairs.create'))->assertOk();
+        $res->assertSee('อุปกรณ์ของฉัน', false)->assertSee('Acer', false)->assertSee('0811111111', false);
+        $this->actingAs(User::factory()->create())->get(route('repairs.create'))->assertDontSee('อุปกรณ์ของฉัน', false);
+    }
+
+    public function test_topbar_has_notification_bell(): void
+    {
+        $this->actingAs(User::factory()->create())->get('/dashboard')
+            ->assertSee('aria-label="การแจ้งเตือน"', false)
+            ->assertSee(route('notifications.index'), false);
+    }
 }
