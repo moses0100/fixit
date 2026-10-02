@@ -11,6 +11,33 @@ class UserWorkspaceTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_creation_confirmation_only_appears_after_successful_save(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->post('/repairs', [])->assertSessionHasErrors()
+            ->assertSessionMissing('repair_created');
+        $this->assertDatabaseCount('repair_requests', 0);
+        $response = $this->post('/repairs', [
+            'device_type' => 'Notebook', 'brand' => 'Lenovo', 'title' => 'เปิดไม่ติด',
+            'problem_description' => 'กดเปิดแล้วไม่มีไฟ', 'urgency' => 'medium', 'contact_phone' => '0812345678',
+        ])->assertSessionHasNoErrors();
+        $repair = RepairRequest::firstOrFail();
+        $response->assertRedirect(route('repairs.show', $repair))
+            ->assertSessionHas('repair_created', $repair->ticket_no);
+        $this->get(route('repairs.show', $repair))->assertOk()
+            ->assertSee('รับคำขอแจ้งซ่อมแล้ว')->assertSee($repair->ticket_no)
+            ->assertSee('repair-success-icon', false);
+        $this->get(route('repairs.show', $repair))->assertDontSee('repair-success-icon', false);
+    }
+
+    public function test_admin_keeps_original_success_feedback(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']))
+            ->withSession(['success' => 'บันทึกสำเร็จ', 'repair_created' => 'REP-DEMO'])
+            ->get('/admin')->assertOk()->assertSee('success-pop', false)
+            ->assertDontSee('repair-success-icon', false);
+    }
+
     public function test_active_jobs_and_latest_progress_appear_before_summary_and_hide_other_owners(): void
     {
         $user = User::factory()->create();

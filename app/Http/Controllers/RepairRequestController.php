@@ -93,7 +93,9 @@ class RepairRequestController extends Controller
 
         User::where('role', 'admin')->get()->each(fn (User $admin) => $admin->notify(new NewRepairRequestReceived($repair)));
 
-        return redirect()->route('repairs.show', $repair)->with('success', 'ส่งแจ้งซ่อมเรียบร้อย เลขที่ '.$repair->ticket_no);
+        return redirect()->route('repairs.show', $repair)
+            ->with('success', 'ส่งแจ้งซ่อมเรียบร้อย เลขที่ '.$repair->ticket_no)
+            ->with('repair_created', $repair->ticket_no);
     }
 
     private function authorizeOwner(Request $request, RepairRequest $repair): void

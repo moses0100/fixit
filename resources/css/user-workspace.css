@@ -1,4 +1,15 @@
 .user-content .user-page-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:28px}
+body:not(.theme-admin) .usernav>.btn-primary,body:not(.theme-admin) .user-content a.btn-primary[href$="/repairs/create"],body:not(.theme-admin) .user-content .repair-card-bottom .btn{transition:transform 160ms ease,box-shadow 160ms ease}
+.user-content .repair-link-arrow{display:inline-block;transition:transform 160ms ease}
+@media(hover:hover) and (pointer:fine){body:not(.theme-admin) .usernav>.btn-primary:hover,body:not(.theme-admin) .user-content a.btn-primary[href$="/repairs/create"]:hover{transform:translateY(-2px);box-shadow:0 5px 14px #175c4626}body:not(.theme-admin) .user-content .repair-card-bottom .btn:hover .repair-link-arrow{transform:translateX(3px)}}
+body:not(.theme-admin) .usernav>.btn-primary:active,body:not(.theme-admin) .user-content a.btn-primary[href$="/repairs/create"]:active,body:not(.theme-admin) .user-content .repair-card-bottom .btn:active{transform:scale(.98)}
+.user-content .repair-success{display:flex;align-items:center;gap:14px;padding:18px;animation:repair-success-enter 220ms ease-out both;overflow-wrap:anywhere}
+.user-content .repair-success-icon{width:48px;height:48px;flex-shrink:0}
+.user-content .repair-success-icon circle{fill:#1f6f5b}
+.user-content .repair-success-icon path{fill:none;stroke:#fff;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:32;stroke-dashoffset:0;animation:repair-check-draw 260ms ease-out both}
+@keyframes repair-success-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes repair-check-draw{from{stroke-dashoffset:32}to{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){body:not(.theme-admin) .usernav>.btn-primary,body:not(.theme-admin) .user-content a.btn-primary[href$="/repairs/create"],body:not(.theme-admin) .user-content .repair-card-bottom .btn,body:not(.theme-admin) .user-content .repair-link-arrow{transition:none!important;transform:none!important}body:not(.theme-admin) .user-content .repair-success,body:not(.theme-admin) .user-content .repair-success-icon path,body:not(.theme-admin) .user-content .success-pop,body:not(.theme-admin) .user-content .success-check,body:not(.theme-admin) .send-overlay .send-card,body:not(.theme-admin) .send-overlay .send-spinner{animation:none!important}}
 .user-content .user-section{margin-bottom:28px}
 .user-content .user-section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .user-content .user-section-heading h2{font-size:18px;font-weight:700;margin:0}

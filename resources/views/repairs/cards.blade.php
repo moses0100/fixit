@@ -13,7 +13,7 @@
                 </ol>
             @endif
             <div class="repair-update"><span class="small text-muted">ความคืบหน้าล่าสุด</span><p>{{ $latestHistory?->note ?: ($repair->admin_note ?: 'ส่งคำขอแล้ว รอผู้ดูแลตรวจสอบ') }}</p><time class="small text-muted" datetime="{{ ($latestHistory?->created_at ?? $repair->updated_at)->toIso8601String() }}">{{ ($latestHistory?->created_at ?? $repair->updated_at)->timezone('Asia/Bangkok')->format('d/m/Y H:i') }} น.</time></div>
-            <div class="repair-card-bottom"><span class="small text-muted">ความเร่งด่วน <strong class="{{ $repair->urgency === 'high' ? 'urgency-high' : '' }}">{{ \App\Models\RepairRequest::URGENCIES[$repair->urgency] }}</strong></span><a class="btn btn-outline-secondary btn-sm" aria-label="ดูรายละเอียด {{ $repair->ticket_no }}" href="{{ route('repairs.show', $repair) }}">ดูรายละเอียด →</a></div>
+            <div class="repair-card-bottom"><span class="small text-muted">ความเร่งด่วน <strong class="{{ $repair->urgency === 'high' ? 'urgency-high' : '' }}">{{ \App\Models\RepairRequest::URGENCIES[$repair->urgency] }}</strong></span><a class="btn btn-outline-secondary btn-sm" aria-label="ดูรายละเอียด {{ $repair->ticket_no }}" href="{{ route('repairs.show', $repair) }}">ดูรายละเอียด <span class="repair-link-arrow" aria-hidden="true">→</span></a></div>
         </article>
     @empty
         <div class="user-empty"><div><h3>ยังไม่มีรายการในส่วนนี้</h3><p>หากกำลังค้นหา ลองเปลี่ยนตัวกรอง หรือเริ่มแจ้งซ่อมเมื่ออุปกรณ์มีปัญหา</p><a href="{{ route('repairs.create') }}">แจ้งซ่อมใหม่ →</a></div></div>

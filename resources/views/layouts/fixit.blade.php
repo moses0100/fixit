@@ -55,7 +55,16 @@
 <nav class="guest-nav"><a class="brand" href="{{ route('home') }}"><span class="brand-mark">+</span> FixIT</a><div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="{{ route('login') }}">เข้าสู่ระบบ</a><a class="btn btn-primary" href="{{ route('register') }}">เริ่มต้นใช้งาน</a></div></nav>
 <main>
 @endauth
-    @if(session('success'))<div class="alert alert-success success-pop" role="status"><span class="success-check">✓</span> {{ session('success') }}</div>@endif
+    @if(session('success'))
+        @if(auth()->check() && !$isAdmin && session('repair_created'))
+            <div class="alert alert-success repair-success" role="status" aria-atomic="true">
+                <svg class="repair-success-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="22"/><path d="M14 24l7 7 13-14"/></svg>
+                <div><strong>รับคำขอแจ้งซ่อมแล้ว</strong><p class="mb-0">{{ session('success') }}</p><span class="small">คุณติดตามความคืบหน้าได้จากรายละเอียดด้านล่าง</span></div>
+            </div>
+        @else
+            <div class="alert alert-success success-pop" role="status"><span class="success-check">✓</span> {{ session('success') }}</div>
+        @endif
+    @endif
     @if(session('status'))<div class="alert alert-info mx-auto" style="max-width:700px" role="status">{{ session('status') }}</div>@endif
     @if($errors->any())<div class="alert alert-danger mx-auto" style="max-width:1000px" role="alert"><strong>กรุณาตรวจสอบข้อมูลอีกครั้ง</strong><ul class="mb-0 mt-2">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
     @yield('content')
