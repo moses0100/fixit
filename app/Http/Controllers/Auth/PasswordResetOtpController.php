@@ -37,7 +37,7 @@ class PasswordResetOtpController extends Controller
             ]);
         }
 
-        $user = User::where('email', $sessionEmail)->where('is_active', true)->first();
+        $user = User::whereRaw('LOWER(email) = ?', [strtolower($sessionEmail)])->where('is_active', true)->first();
 
         if (! $user) {
             return back()->withInput(['email' => $email])->withErrors([

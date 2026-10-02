@@ -34,6 +34,19 @@ class AdminController extends Controller
         return view('repairs.index', ['repairs' => $repairs, 'admin' => true]);
     }
 
+    public function counts()
+    {
+        $counts = RepairRequest::selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+
+        return response()->json([
+            'all' => (int) $counts->sum(),
+            'pending' => (int) ($counts['pending'] ?? 0),
+            'repairing' => (int) ($counts['repairing'] ?? 0),
+            'completed' => (int) ($counts['completed'] ?? 0),
+            'cancelled' => (int) ($counts['cancelled'] ?? 0),
+        ]);
+    }
+
     public function export(Request $request)
     {
         return \Maatwebsite\Excel\Facades\Excel::download(
@@ -53,12 +66,13 @@ class AdminController extends Controller
     public function updateStatus(Request $request, RepairRequest $repair)
     {
         $data = $request->validate(['status' => ['required', Rule::in(array_keys(RepairRequest::STATUSES))], 'admin_note' => ['nullable', 'string', 'max:5000'], 'is_guidance' => ['sometimes', 'boolean']]);
-        $previousStatus = $repair->status;
+        $previousStatus = null;
         $statusChanged = false;
         $noteChanged = false;
         $actorId = $request->user()->id;
-        $updatedRepair = DB::transaction(function () use ($repair, $data, $request, $actorId, &$statusChanged, &$noteChanged, $previousStatus) {
+        $updatedRepair = DB::transaction(function () use ($repair, $data, $request, $actorId, &$statusChanged, &$noteChanged, &$previousStatus) {
             $locked = RepairRequest::whereKey($repair->id)->lockForUpdate()->firstOrFail();
+            $previousStatus = $locked->status;
             if ($data['status'] !== $locked->status && ! in_array($data['status'], RepairRequest::TRANSITIONS[$locked->status], true)) {
                 throw ValidationException::withMessages(['status' => 'ไม่สามารถเปลี่ยนสถานะตามลำดับนี้ได้ กรุณารีเฟรชเพื่อตรวจสถานะล่าสุด']);
             }

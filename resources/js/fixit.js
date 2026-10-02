@@ -9,6 +9,45 @@ if (themeBtn) themeBtn.addEventListener('click', () => {
     paintThemeBtn();
 });
 paintThemeBtn();
+const statusCanvas = document.querySelector('#statusChart');
+if (statusCanvas) {
+    let counts = {};
+    try { counts = JSON.parse(statusCanvas.dataset.counts || '{}'); } catch (e) { }
+    const summary = document.querySelector('#statusSummary');
+    let chart = null;
+    const labels = ['รอตรวจสอบ', 'กำลังซ่อม', 'ซ่อมเสร็จ', 'ยกเลิก'];
+    const values = current => [current.pending || 0, current.repairing || 0, current.completed || 0, current.cancelled || 0];
+    const render = () => {
+        const total = values(counts).reduce((sum, value) => sum + Number(value), 0);
+        if (summary) summary.textContent = total > 0
+            ? 'ทั้งหมด ' + total + ' รายการ · ซ่อมเสร็จ ' + (counts.completed || 0) + ' · กำลังซ่อม ' + (counts.repairing || 0) + ' · รอตรวจ ' + (counts.pending || 0)
+            : 'ยังไม่มีข้อมูลงานซ่อม';
+        document.querySelectorAll('[data-count-status]').forEach(link => {
+            const value = link.querySelector('.metric-value');
+            const key = link.getAttribute('data-count-status');
+            if (value && key === 'all') value.textContent = total;
+            else if (value && counts[key] !== undefined) value.textContent = counts[key];
+        });
+        if (chart) {
+            chart.data.datasets[0].data = values(counts);
+            chart.update();
+        }
+    };
+    render();
+    import('chart.js/auto').then(({ default: Chart }) => {
+        chart = new Chart(statusCanvas, {
+            type: 'doughnut',
+            data: { labels, datasets: [{ data: values(counts), backgroundColor: ['#e8b739', '#4a8bd4', '#2f9e6e', '#9aa5a0'], borderWidth: 2, borderColor: '#fff' }] },
+            options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } } }, cutout: '62%' },
+        });
+    }).catch(() => { });
+    window.setInterval(() => {
+        fetch(statusCanvas.dataset.countsUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(response => response.json())
+            .then(nextCounts => { counts = nextCounts; render(); })
+            .catch(() => { });
+    }, 15000);
+}
 const liveForm = document.querySelector('form[data-live-search]');
 if (liveForm) {
     const result = document.querySelector('[data-live-result]');
@@ -106,7 +145,7 @@ if (suggestInput && suggestBox) {
                 const res = await fetch('/repairs/suggest?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
                 const data = await res.json();
                 if (!data.count) { suggestBox.hidden = true; return; }
-                suggestBox.innerHTML = 'อาการนี้เคยเจอ ' + data.count + ' ครั้ง' + (data.hint ? ' · แนวทางที่ช่างใช้บ่อย: ' + data.hint.replace(/</g, '&lt;') : '');
+                suggestBox.textContent = 'อาการนี้เคยเจอ ' + data.count + ' ครั้ง' + (data.hint ? ' · แนวทางที่ช่างใช้บ่อย: ' + data.hint : '');
                 suggestBox.hidden = false;
             } catch (e) { suggestBox.hidden = true; }
         }, 400);

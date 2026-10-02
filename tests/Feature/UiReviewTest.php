@@ -61,4 +61,18 @@ class UiReviewTest extends TestCase
         $this->actingAs($user)->get('/dashboard')->assertSee('metric-grid', false)->assertSee('action-strip', false);
         $this->actingAs($user)->get('/dashboard')->assertSee('status=pending', false)->assertSee('status=repairing', false);
     }
+
+    public function test_dashboard_chart_is_bundled_and_available_to_both_roles(): void
+    {
+        $this->actingAs(User::factory()->create())->get('/dashboard')
+            ->assertOk()
+            ->assertSee('data-counts-url=', false)
+            ->assertSee('aria-label="กราฟสัดส่วนงานซ่อม"', false)
+            ->assertDontSee('cdn.jsdelivr.net/npm/chart.js', false);
+
+        $this->actingAs(User::factory()->create(['role' => 'admin']))->get('/admin')
+            ->assertOk()
+            ->assertSee('data-counts-url=', false)
+            ->assertDontSee('cdn.jsdelivr.net/npm/chart.js', false);
+    }
 }

@@ -30,14 +30,14 @@ class PasswordResetLinkController extends Controller
         ]);
 
         $email = strtolower(trim($validated['email']));
+        $status = 'หากอีเมลนี้มีบัญชีในระบบ เราจะส่งรหัส OTP ไปให้ รหัสมีอายุ 10 นาที';
+        $request->session()->put('password_reset.email', $email);
         $user = User::whereRaw('LOWER(email) = ?', [$email])
             ->where('is_active', true)
             ->first();
 
         if (! $user) {
-            $request->session()->put('password_reset.email', $email);
-
-            return redirect()->route('password.otp')->with('status', 'หากอีเมลนี้มีบัญชีในระบบ เราจะส่งรหัส OTP ไปให้');
+            return redirect()->route('password.otp')->with('status', $status);
         }
 
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -55,13 +55,9 @@ class PasswordResetLinkController extends Controller
         } catch (Throwable $error) {
             $resetOtp->delete();
             report($error);
-            $request->session()->put('password_reset.email', $email);
-
-            return redirect()->route('password.otp')->with('status', 'หากอีเมลนี้มีบัญชีในระบบ เราจะส่งรหัส OTP ไปให้');
+            return redirect()->route('password.otp')->with('status', $status);
         }
 
-        $request->session()->put('password_reset.email', $user->email);
-
-        return redirect()->route('password.otp')->with('status', 'ส่งรหัส OTP ไปยังอีเมลแล้ว รหัสมีอายุ 10 นาที');
+        return redirect()->route('password.otp')->with('status', $status);
     }
 }

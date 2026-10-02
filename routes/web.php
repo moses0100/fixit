@@ -41,6 +41,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::redirect('/dashboard', '/admin');
+        Route::get('/dashboard/counts', [AdminController::class, 'counts'])->name('dashboard.counts');
         Route::get('/repairs/export', [AdminController::class, 'export'])->name('repairs.export');
         Route::get('/repairs', [AdminController::class, 'index'])->name('repairs.index');
         Route::get('/repairs/{repair}', [AdminController::class, 'show'])->name('repairs.show');
