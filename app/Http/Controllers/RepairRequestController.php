@@ -16,7 +16,8 @@ class RepairRequestController extends Controller
 {
     public function index(Request $request)
     {
-        $repairs = $request->user()->repairRequests()->filter($request)->paginate(10)->withQueryString();
+        $repairs = $request->user()->repairRequests()->with(['histories' => fn ($query) => $query->limit(1)])
+            ->filter($request)->paginate(10)->withQueryString();
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('repairs.table', ['repairs' => $repairs, 'admin' => false])->render()

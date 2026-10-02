@@ -1,3 +1,6 @@
+@if(!$admin)
+@include('repairs.cards')
+@else
 <div class="table-responsive">
 <table class="table table-hover">
     <thead><tr><th>รายการ / เลขแจ้งซ่อม</th><th>อุปกรณ์</th>@if($admin)<th>ผู้แจ้ง</th>@endif<th>ความเร่งด่วน</th><th>สถานะ</th><th>วันที่แจ้ง</th><th><span class="visually-hidden">รายละเอียด</span></th></tr></thead>
@@ -18,3 +21,4 @@
     </tbody>
 </table>
 </div>
+@endif

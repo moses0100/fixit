@@ -60,7 +60,7 @@
     @if($errors->any())<div class="alert alert-danger mx-auto" style="max-width:1000px" role="alert"><strong>กรุณาตรวจสอบข้อมูลอีกครั้ง</strong><ul class="mb-0 mt-2">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
     @yield('content')
 @auth
-    <footer class="footer"><span>FixIT · ระบบแจ้งซ่อมและติดตามสถานะคอมพิวเตอร์</span><span>Laravel Term Project / {{ date('Y') }}</span></footer>
+    <footer class="footer"><span>FixIT · ระบบแจ้งซ่อมและติดตามสถานะคอมพิวเตอร์</span><span>{{ $isAdmin ? 'Laravel Term Project' : 'โครงงาน Laravel' }} / {{ date('Y') }}</span></footer>
 @else
     <footer class="footer landing-footer"><span>FixIT · แจ้งปัญหา ติดตาม กลับมาใช้งาน</span><span>Laravel Term Project / {{ date('Y') }}</span></footer>
 @endauth

@@ -1,6 +1,9 @@
 @extends('layouts.fixit')
 @section('title', $admin ? 'ภาพรวมผู้ดูแลระบบ' : 'ภาพรวมของฉัน')
 @section('content')
+@if(!$admin)
+@include('partials.user-dashboard')
+@else
 <div class="d-flex justify-content-between align-items-start mb-4 gap-3 flex-wrap"><div><div class="eyebrow">{{ $admin ? 'ADMIN WORKSPACE' : 'MY WORKSPACE' }}</div><h1 class="page-title">{{ $admin ? 'ภาพรวมผู้ดูแลระบบ' : 'ภาพรวมของฉัน' }}</h1><p class="page-lead mb-0">{{ $admin ? 'ติดตามทุกงานซ่อม และดูแลให้ทุกอุปกรณ์กลับมาพร้อมใช้งาน' : 'ติดตามทุกการแจ้งซ่อมของคุณได้ในที่เดียว' }}</p></div><span class="small text-muted pt-2">{{ now()->timezone('Asia/Bangkok')->format('d / m / Y') }}</span></div>
 <div class="welcome-card d-flex align-items-center justify-content-between gap-4 mb-4"><div><div class="eyebrow">LET'S GET IT FIXED</div><h2>สวัสดี {{ auth()->user()->name }}<br>{{ $admin ? 'วันนี้มีอะไรให้เราดูแลบ้าง?' : 'มีปัญหากับอุปกรณ์ใช่ไหม?' }}</h2><p class="page-lead">{{ $admin ? 'เริ่มจากรายการที่รอตรวจสอบ แล้วอัปเดตความคืบหน้าให้ผู้แจ้งทราบ' : 'แจ้งรายละเอียด แนบรูป แล้วติดตามความคืบหน้าได้เลย' }}</p>@if($admin)<a class="btn btn-primary" href="{{ route('admin.repairs.index', ['status' => 'pending']) }}">ดูงานที่รอตรวจสอบ →</a>@endif</div><div class="welcome-illustration">@include('partials.computer')</div></div>
 @php($pendingCount = $counts['pending'] ?? 0)
@@ -18,4 +21,5 @@
 <div class="col-lg-4"><div class="panel h-100"><div class="panel-head"><h2>สัดส่วนงานซ่อม</h2><span class="small text-muted">ภาพรวมสถานะ</span></div><div class="panel-body"><canvas id="statusChart" data-counts='@json($chartCounts)' data-counts-url="{{ route($admin ? 'admin.dashboard.counts' : 'dashboard.counts') }}" role="img" aria-label="กราฟสัดส่วนงานซ่อม" height="220"></canvas><p class="small text-muted mt-3 mb-0" id="statusSummary"></p></div></div></div>
 <div class="col-lg-8"><div class="panel h-100"><div class="panel-head"><h2>รายการแจ้งซ่อมล่าสุด</h2><a class="small fw-semibold" href="{{ route($admin ? 'admin.repairs.index' : 'repairs.index') }}">ดูทั้งหมด →</a></div>@include('repairs.table')</div></div>
 </div>
+@endif
 @endsection

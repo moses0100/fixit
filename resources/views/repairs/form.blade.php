@@ -2,7 +2,7 @@
 @section('title', $repair->exists ? 'แก้ไขรายการแจ้งซ่อม' : 'แจ้งซ่อมใหม่')
 @section('content')
 <a class="small" href="{{ route('repairs.index') }}">← กลับไปรายการแจ้งซ่อม</a>
-<div class="eyebrow mt-4">NEW REPAIR / DEVICE SUPPORT</div>
+<div class="eyebrow mt-4">{{ auth()->user()->role === 'admin' ? 'NEW REPAIR / DEVICE SUPPORT' : 'แจ้งปัญหาอุปกรณ์' }}</div>
 <h1 class="page-title">{{ $repair->exists ? 'แก้ไขรายการแจ้งซ่อม' : 'ให้อุปกรณ์ของคุณกลับมาพร้อมใช้งาน' }}</h1>
 <p class="page-lead mb-4">กรอกรายละเอียดให้ครบ เพื่อให้ผู้ดูแลตรวจสอบปัญหาได้ตรงจุด</p>
 <form action="{{ $repair->exists ? route('repairs.update', $repair) : route('repairs.store') }}" method="POST" enctype="multipart/form-data" novalidate data-validate>

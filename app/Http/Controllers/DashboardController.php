@@ -9,10 +9,14 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $query = $request->user()->repairRequests();
+        $history = ['histories' => fn ($query) => $query->limit(1)];
 
         return view('dashboard', [
             'counts' => (clone $query)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status'),
-            'repairs' => $query->latest('created_at')->latest('id')->limit(5)->get(),
+            'activeRepairs' => (clone $query)->whereIn('status', ['pending', 'repairing'])
+                ->with($history)->latest('updated_at')->latest('id')->limit(4)->get(),
+            'repairs' => (clone $query)->whereIn('status', ['completed', 'cancelled'])
+                ->with($history)->latest('updated_at')->latest('id')->limit(4)->get(),
             'admin' => false,
         ]);
     }
