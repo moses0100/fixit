@@ -1,7 +1,7 @@
 <div class="repair-card-grid">
     @forelse($repairs as $repair)
         @php($latestHistory = $repair->histories->first())
-        <article class="repair-card" aria-label="ใบงาน {{ $repair->ticket_no }}">
+        <article class="repair-card {{ $repair->status === 'repairing' ? 'repair-card-repairing' : '' }}" aria-label="ใบงาน {{ $repair->ticket_no }}">
             <div class="repair-card-top"><span class="ticket">{{ $repair->ticket_no }}</span><span class="status status-{{ $repair->status }}">{{ \App\Models\RepairRequest::STATUSES[$repair->status] }}</span></div>
             <h3><a href="{{ route('repairs.show', $repair) }}">{{ $repair->title }}</a></h3>
             <p class="repair-device">{{ $repair->brand }} {{ $repair->model }} <span class="text-muted">· {{ ['Notebook' => 'โน้ตบุ๊ก', 'Desktop PC' => 'คอมพิวเตอร์ตั้งโต๊ะ', 'All-in-One' => 'คอมพิวเตอร์ออลอินวัน', 'Monitor' => 'จอภาพ', 'Other' => 'อุปกรณ์อื่น ๆ'][$repair->device_type] ?? $repair->device_type }}</span></p>

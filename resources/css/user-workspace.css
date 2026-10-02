@@ -6,6 +6,10 @@
 .user-content .repair-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:18px}
 .user-content .user-dashboard .repair-card-grid{padding:0}
 .user-content .repair-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0;overflow-wrap:anywhere}
+.user-content .repair-card-repairing{background:linear-gradient(135deg,#f1faf5 0%,#f0faf9 65%,#fff 100%);border-color:#c6e2d7}
+body:not(.theme-admin) .usernav>.btn-primary,body:not(.theme-admin) .user-content a.btn-primary[href$="/repairs/create"]{background:linear-gradient(115deg,#175c46 0%,#14746b 100%);border-color:#175c46;color:#fff;box-shadow:0 3px 10px #175c461a}
+body:not(.theme-admin) .usernav>.btn-primary:hover,body:not(.theme-admin) .user-content a.btn-primary[href$="/repairs/create"]:hover{background:linear-gradient(115deg,#114936 0%,#105e57 100%);border-color:#114936;color:#fff}
+body:not(.theme-admin) .usernav>.btn-primary:focus-visible,body:not(.theme-admin) .user-content a.btn-primary[href$="/repairs/create"]:focus-visible{outline:3px solid #57a995;outline-offset:3px}
 .user-content .repair-card-top,.user-content .repair-card-bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .user-content .repair-card-top{margin-bottom:12px}
 .user-content .repair-card h3{font-size:17px;font-weight:700;line-height:1.6;margin:0 0 4px}
@@ -14,8 +18,12 @@
 .user-content .repair-update{border-top:1px solid var(--line);padding-top:12px;margin:14px 0}
 .user-content .repair-update p{font-size:14px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:4px 0}
 .user-content .repair-progress{display:flex;list-style:none;padding:0;margin:16px 0;gap:8px}
-.user-content .repair-progress li{flex:1;border-top:3px solid var(--line);padding-top:7px;font-size:12px;color:var(--muted)}
-.user-content .repair-progress li.done,.user-content .repair-progress li.current{border-color:var(--brand);color:var(--brand)}
+.user-content .repair-progress li{flex:1;min-width:0;padding-top:0;font-size:12px;color:var(--muted);--step-offset:0%}
+.user-content .repair-progress li:nth-child(2){--step-offset:50%}
+.user-content .repair-progress li:nth-child(3){--step-offset:100%}
+.user-content .repair-progress li::before{content:"";display:block;height:4px;border-radius:4px;background:var(--line);margin-bottom:7px}
+.user-content .repair-progress li.done,.user-content .repair-progress li.current{color:var(--brand)}
+.user-content .repair-progress li.done::before,.user-content .repair-progress li.current::before{background-image:linear-gradient(90deg,#175c46,#14746b,#218781);background-size:300% 100%;background-position:var(--step-offset) center}
 .user-content .repair-progress li.current{font-weight:700}
 .user-content .repair-card-bottom .btn{padding:8px 12px}
 .user-content .user-empty{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:24px;border:1px dashed var(--line);border-radius:14px}
@@ -30,5 +38,7 @@
 .user-content .user-chart-details summary{cursor:pointer;color:var(--brand);font-weight:600;padding:8px 0}
 .user-content .user-chart{width:240px;max-width:100%;margin:16px auto;position:relative}
 html[data-theme="dark"] .user-content .repair-card{background:#16211d}
+html[data-theme="dark"] .user-content .repair-card-repairing{background:linear-gradient(135deg,#182e23 0%,#17302c 65%,#16211d 100%);border-color:#315d4d}
+html[data-theme="dark"] .user-content .repair-progress li.done::before,html[data-theme="dark"] .user-content .repair-progress li.current::before{background-image:linear-gradient(90deg,#5fc29a,#53bcaf,#73d2c3)}
 html[data-theme="dark"] .user-content .user-stat{background:#1e332c}
 @media(max-width:767px){.user-content .repair-card-grid{grid-template-columns:1fr;padding:12px;gap:12px}.user-content .repair-card{padding:16px}.user-content .user-page-heading{align-items:flex-start;flex-wrap:wrap;margin-bottom:24px}.user-content .user-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.user-content .user-stat:last-child{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}.user-content .user-empty{padding:18px}.user-content .repair-card-bottom .btn{min-height:44px}.user-content .user-section{margin-bottom:24px}}

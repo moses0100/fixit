@@ -24,6 +24,7 @@ class UserWorkspaceTest extends TestCase
             ->assertViewHas('repairs', fn ($jobs) => $jobs->count() === 1 && $jobs->first()->status === 'completed')
             ->assertSeeInOrder(['งานที่กำลังดำเนินการ', 'กำลังเปลี่ยนพัดลม', 'ประวัติงานล่าสุด', 'สรุปงานซ่อม'])
             ->assertSee('aria-current="step"', false)->assertDontSee($other->ticket_no)
+            ->assertSee('repair-card-repairing', false)
             ->assertDontSee('MY WORKSPACE')->assertDontSee('welcome-card', false);
         $this->assertStringContainsString('ดูรายละเอียด', $response->getContent());
     }
